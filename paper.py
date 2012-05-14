@@ -18,6 +18,9 @@ import simplejson
 #record
 # list stroke
 
+ink=(0,0,0)
+paper=(255, 255, 255)
+
 def roundline(srf, ink, start, end, radius=1):
     dx=end[0]-start[0]
     dy=end[1]-start[1]
@@ -37,10 +40,7 @@ def render():
 def main():
     draw_on=False
     last_pos=(0,0)
-    ink=(0,0,0)
-    paper=(255, 255, 255)
     radius=10
-    screen.fill(paper)
     pygame.display.flip()
     last_pressed=(0,0,0)
 
@@ -72,4 +72,6 @@ else:
         print file
     
 screen=pygame.display.set_mode((800,600))
+screen.fill(paper)
+
 main()
