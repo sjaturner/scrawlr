@@ -23,20 +23,29 @@ ink=(0,0,0)
 paper=(255, 255, 255)
 
 record=[]
+stroke=[]
+
+def stroke_render(s):
+    pointlist=[]
+    if len(s)<2:
+        return
+    for item in s:
+        pointlist.append(item['pos'])
+    pygame.draw.lines(screen,ink,False,pointlist,1)
 
 def render():
     screen.fill(paper)
     for s in record:
-        pointlist=[]
-        for item in s:
-            pointlist.append(item['pos'])
-        pygame.draw.lines(screen,ink,False,pointlist,1)
+        stroke_render(s)
+    if stroke:
+        stroke_render(stroke)
     pygame.display.flip()
     pass
 
 def main():
 
-    stroke=[]
+    global stroke
+    down=0
     radius=10
     pygame.display.flip()
     last_pressed=(0,0,0)
@@ -49,22 +58,22 @@ def main():
             sys.exit()
 
         pressed=pygame.mouse.get_pressed()
-        if e.type == pygame.MOUSEBUTTONDOWN:
-            if not last_pressed[0] and pressed[0]:
-                stroke=[]
-                event={}
-                event['time']=time.time()
-                event['pos']=e.pos
-                stroke.append(event)
-        elif e.type == pygame.MOUSEBUTTONUP:
-            if last_pressed[0] and not pressed[0]:
-                event={}
-                event['time']=time.time()
-                event['pos']=e.pos
-                stroke.append(event)
-                record.append(stroke)
+        if e.type == pygame.MOUSEBUTTONDOWN and e.button==1:
+            down=1
+            stroke=[]
+            event={}
+            event['time']=time.time()
+            event['pos']=e.pos
+            stroke.append(event)
+        elif e.type == pygame.MOUSEBUTTONUP and e.button==1:
+            down=0
+            event={}
+            event['time']=time.time()
+            event['pos']=e.pos
+            stroke.append(event)
+            record.append(stroke)
         elif e.type == pygame.MOUSEMOTION:
-            if pressed[0]:
+            if down:
                 event={}
                 event['time']=time.time()
                 event['pos']=e.pos
