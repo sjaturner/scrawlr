@@ -3,6 +3,7 @@ import time
 import pygame
 import random
 import simplejson
+import pprint
 
 #event
 # point 
@@ -21,25 +22,21 @@ import simplejson
 ink=(0,0,0)
 paper=(255, 255, 255)
 
-def roundline(srf, ink, start, end, radius=1):
-    dx=end[0]-start[0]
-    dy=end[1]-start[1]
-    distance=max(abs(dx), abs(dy))
-    for i in range(distance):
-        x=int( start[0]+float(i)/distance*dx)
-        y=int( start[1]+float(i)/distance*dy)
-        pygame.draw.circle(srf, ink, (x, y), radius)
-
 record=[]
-stroke={}
 
 def render():
+    screen.fill(paper)
+    for s in record:
+        pointlist=[]
+        for item in s:
+            pointlist.append(item['pos'])
+        pygame.draw.lines(screen,ink,False,pointlist,1)
     pygame.display.flip()
     pass
 
 def main():
-    draw_on=False
-    last_pos=(0,0)
+
+    stroke=[]
     radius=10
     pygame.display.flip()
     last_pressed=(0,0,0)
@@ -48,20 +45,32 @@ def main():
         e=pygame.event.wait()
         print pygame.mouse.get_pressed()
         if e.type == pygame.QUIT:
+            pprint.pprint(record)
             sys.exit()
 
+        pressed=pygame.mouse.get_pressed()
         if e.type == pygame.MOUSEBUTTONDOWN:
-            pygame.draw.circle(screen, ink, e.pos, radius)
-            draw_on=True
+            if not last_pressed[0] and pressed[0]:
+                stroke=[]
+                event={}
+                event['time']=time.time()
+                event['pos']=e.pos
+                stroke.append(event)
         elif e.type == pygame.MOUSEBUTTONUP:
-            draw_on=False
+            if last_pressed[0] and not pressed[0]:
+                event={}
+                event['time']=time.time()
+                event['pos']=e.pos
+                stroke.append(event)
+                record.append(stroke)
         elif e.type == pygame.MOUSEMOTION:
-            if draw_on:
-                screen.fill(paper)
-                pygame.draw.circle(screen, ink, e.pos, radius)
-                roundline(screen, ink, e.pos, last_pos,  radius)
-            last_pos=e.pos
-        last_pressed=pygame.mouse.get_pressed()
+            if pressed[0]:
+                event={}
+                event['time']=time.time()
+                event['pos']=e.pos
+                stroke.append(event)
+                
+        last_pressed=pressed
 
         render()
 
@@ -74,4 +83,5 @@ else:
 screen=pygame.display.set_mode((800,600))
 screen.fill(paper)
 
+print float(time.time())
 main()
