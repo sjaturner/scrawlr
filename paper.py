@@ -42,13 +42,17 @@ def render():
     pygame.display.flip()
     pass
 
+def stroke_append(pos):
+    event={}
+    event['time']=time.time()
+    event['pos']=pos
+    stroke.append(event)
+    
 def main():
 
     global stroke
     down=0
-    radius=10
     pygame.display.flip()
-    last_pressed=(0,0,0)
 
     while True:
         e=pygame.event.wait()
@@ -61,26 +65,15 @@ def main():
         if e.type == pygame.MOUSEBUTTONDOWN and e.button==1:
             down=1
             stroke=[]
-            event={}
-            event['time']=time.time()
-            event['pos']=e.pos
-            stroke.append(event)
+            stroke_append(e.pos)
         elif e.type == pygame.MOUSEBUTTONUP and e.button==1:
             down=0
-            event={}
-            event['time']=time.time()
-            event['pos']=e.pos
-            stroke.append(event)
+            stroke_append(e.pos)
             record.append(stroke)
         elif e.type == pygame.MOUSEMOTION:
             if down:
-                event={}
-                event['time']=time.time()
-                event['pos']=e.pos
-                stroke.append(event)
+                stroke_append(e.pos)
                 
-        last_pressed=pressed
-
         render()
 
 if len(sys.argv)==1:
