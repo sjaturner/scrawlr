@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import pygame
@@ -5,8 +6,11 @@ import random
 import simplejson
 import pprint
 
+width=800
+height=600
 ink=(0,0,0)
 paper=(255, 255, 255)
+line=(255-0x40, 255-0x40, 255-0x40)
 maxint=sys.maxint
 minint=-sys.maxint-1
 
@@ -27,7 +31,12 @@ def stroke_render(s):
     pygame.draw.lines(screen,ink,False,pointlist,1)
 
 def render():
+    linegap=40
+    colgap=width
     screen.fill(paper)
+    for y in range(0,height,linegap):
+        oy=y-orgy%linegap
+        pygame.draw.lines(screen,line,False,((0,oy),(width,oy)),1)
     for item in record:
         stroke_render(item['stroke'])
     if stroke:
@@ -101,16 +110,21 @@ def main():
                 
         render()
 
-if len(sys.argv)==1:
-    filename=str(int(time.time()))+'.paper'
-else:
-    for file in sys.argv:
-        print file
+if len(sys.argv)==2:
+#   filename=str(int(time.time()))+'.paper'
+    filename=sys.argv[1]
+    if os.path.exists(filename):
+        f=open(filename)
+        json=f.readline()
+        record=simplejson.loads(json)
+        org=f.readline().strip().split()
+        orgx=int(org[0])
+        orgy=int(org[1])
     
-screen=pygame.display.set_mode((800,600))
+screen=pygame.display.set_mode((width,height))
 render()
 
 main()
 
-print orgx,orgy
 print simplejson.dumps(record)
+print orgx,orgy
