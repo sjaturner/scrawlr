@@ -21,8 +21,8 @@ def stroke_render(s):
     if len(s)<2:
         return
     for item in s:
-        x=item['pos'][0]+orgx
-        y=item['pos'][1]+orgy
+        x=item['pos'][0]-orgx
+        y=item['pos'][1]-orgy
         pointlist.append((x,y))
     pygame.draw.lines(screen,ink,False,pointlist,1)
 
@@ -38,8 +38,8 @@ def render():
 def stroke_append(pos):
     event={}
     event['time']=time.time()
-    x=pos[0]-orgx
-    y=pos[1]-orgy
+    x=pos[0]+orgx
+    y=pos[1]+orgy
     event['pos']=(x,y)
     stroke.append(event)
 
@@ -93,8 +93,8 @@ def main():
             if drag:
                 x=dorg[0]-e.pos[0]
                 y=dorg[1]-e.pos[1]
-                orgx-=x
-                orgy-=y
+                orgx+=x
+                orgy+=y
                 dorg=e.pos
             elif down:
                 stroke_append(e.pos)
@@ -112,4 +112,5 @@ render()
 
 main()
 
+print orgx,orgy
 print simplejson.dumps(record)
