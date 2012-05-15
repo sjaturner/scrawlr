@@ -111,7 +111,6 @@ def main():
         render()
 
 if len(sys.argv)==2:
-#   filename=str(int(time.time()))+'.paper'
     filename=sys.argv[1]
     if os.path.exists(filename):
         f=open(filename)
