@@ -13,18 +13,23 @@ minint=-sys.maxint-1
 record=[]
 stroke=[]
 
+orgx=0
+orgy=0
+
 def stroke_render(s):
     pointlist=[]
     if len(s)<2:
         return
     for item in s:
-        pointlist.append(item['pos'])
+        x=item['pos'][0]+orgx
+        y=item['pos'][1]+orgy
+        pointlist.append((x,y))
     pygame.draw.lines(screen,ink,False,pointlist,1)
 
 def render():
     screen.fill(paper)
-    for s in record:
-        stroke_render(s)
+    for item in record:
+        stroke_render(item['stroke'])
     if stroke:
         stroke_render(stroke)
     pygame.display.flip()
@@ -33,7 +38,9 @@ def render():
 def stroke_append(pos):
     event={}
     event['time']=time.time()
-    event['pos']=pos
+    x=pos[0]-orgx
+    y=pos[1]-orgy
+    event['pos']=(x,y)
     stroke.append(event)
 
 def bbox(s):
@@ -51,10 +58,15 @@ def bbox(s):
             maxx=x
         if y>maxy:
             maxy=y
+    return ((minx,miny),(maxx,maxy))
     
 def main():
-
     global stroke
+    global orgx
+    global orgy
+
+    dorg=(0,0)
+    drag=0
     down=0
     pygame.display.flip()
 
@@ -64,6 +76,11 @@ def main():
             return
 
         pressed=pygame.mouse.get_pressed()
+        if e.type == pygame.MOUSEBUTTONDOWN and e.button==2:
+            drag=1
+            dorg=e.pos
+        elif e.type == pygame.MOUSEBUTTONUP and e.button==2:
+            drag=0
         if e.type == pygame.MOUSEBUTTONDOWN and e.button==1:
             down=1
             stroke=[]
@@ -71,9 +88,15 @@ def main():
         elif e.type == pygame.MOUSEBUTTONUP and e.button==1:
             down=0
             stroke_append(e.pos)
-            record.append(stroke)
+            record.append({'stroke':stroke,'bbox':bbox(stroke)})
         elif e.type == pygame.MOUSEMOTION:
-            if down:
+            if drag:
+                x=dorg[0]-e.pos[0]
+                y=dorg[1]-e.pos[1]
+                orgx-=x
+                orgy-=y
+                dorg=e.pos
+            elif down:
                 stroke_append(e.pos)
                 
         render()
@@ -85,6 +108,8 @@ else:
         print file
     
 screen=pygame.display.set_mode((800,600))
-screen.fill(paper)
+render()
 
 main()
+
+print simplejson.dumps(record)
