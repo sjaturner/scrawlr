@@ -5,22 +5,10 @@ import random
 import simplejson
 import pprint
 
-#event
-# point 
-#  x
-#  y
-# time
-
-#stroke 
-# start event (uid)
-# list delta event 
-# bbox
-
-#record
-# list stroke
-
 ink=(0,0,0)
 paper=(255, 255, 255)
+maxint=sys.maxint
+minint=-sys.maxint-1
 
 record=[]
 stroke=[]
@@ -47,6 +35,22 @@ def stroke_append(pos):
     event['time']=time.time()
     event['pos']=pos
     stroke.append(event)
+
+def bbox(s):
+    minx=maxint
+    miny=maxint
+    maxx=minint
+    maxy=minint
+    for item in s:
+        x,y=item['pos']
+        if x<minx:
+            minx=x
+        if y<miny:
+            miny=y
+        if x>maxx:
+            maxx=x
+        if y>maxy:
+            maxy=y
     
 def main():
 
@@ -56,10 +60,8 @@ def main():
 
     while True:
         e=pygame.event.wait()
-        print pygame.mouse.get_pressed()
         if e.type == pygame.QUIT:
-            pprint.pprint(record)
-            sys.exit()
+            return
 
         pressed=pygame.mouse.get_pressed()
         if e.type == pygame.MOUSEBUTTONDOWN and e.button==1:
@@ -85,5 +87,4 @@ else:
 screen=pygame.display.set_mode((800,600))
 screen.fill(paper)
 
-print float(time.time())
 main()
