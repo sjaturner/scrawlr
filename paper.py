@@ -21,6 +21,12 @@ stroke=[]
 orgx=0
 orgy=0
 
+start_time=time.time()
+start_tick=pygame.time.get_ticks()
+def paper_time():
+    return time.time()
+    return start_time+(start_tick-pygame.time.get_ticks())/1000.0
+    
 def stroke_render(s):
     pointlist=[]
     if len(s)<2:
@@ -47,7 +53,7 @@ def render():
 
 def stroke_append(pos):
     event={}
-    event['time']=time.time()
+    event['time']=paper_time()
     x=pos[0]+orgx
     y=pos[1]+orgy
     event['pos']=(x,y)
