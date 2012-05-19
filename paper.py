@@ -5,6 +5,7 @@ import pygame
 import random
 import simplejson
 import pprint
+import numpy
 
 width=800
 height=600
@@ -69,6 +70,36 @@ def bbox(s):
             maxy=y
     return ((minx,miny),(maxx,maxy))
     
+def sparkline_angle(data):
+    ret={}
+    ret['stroke']=[]
+    first=1
+    base_x=data['bbox'][1][0]
+    acc_x=base_x
+    base_y=(data['bbox'][0][1]+data['bbox'][1][1])/2
+    for event in data['stroke']:
+        pos=event['pos']
+        x=pos[0]
+        y=pos[1]
+        if first:
+            first=0
+        else:
+            dx=x-old_x
+            dy=y-old_y
+            r=numpy.sqrt(dx**2 + dy**2)
+            if r>0.0:
+                t=numpy.arctan2(dy, dx)
+                acc_x+=r
+                ret['stroke'].append({'pos':(acc_x,base_y+t*10),'time':time.time()})
+        old_x=x
+        old_y=y
+    ret['bbox']=bbox(ret['stroke'])
+    return ret
+    
+def record_append(data):
+    record.append(data)
+    record.append(sparkline_angle(data))
+
 def main():
     global stroke
     global orgx
@@ -97,7 +128,7 @@ def main():
         elif e.type == pygame.MOUSEBUTTONUP and e.button==1:
             down=0
             stroke_append(e.pos)
-            record.append({'stroke':stroke,'bbox':bbox(stroke)})
+            record_append({'stroke':stroke,'bbox':bbox(stroke)})
         elif e.type == pygame.MOUSEMOTION:
             if drag:
                 x=dorg[0]-e.pos[0]
