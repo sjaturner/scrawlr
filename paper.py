@@ -23,6 +23,19 @@ orgy=0
 
 start_time=time.time()
 start_tick=pygame.time.get_ticks()
+
+def med(a):
+    return sorted(a)[len(a)/2]
+
+def bucket(samples,gap,fun):
+    if not gap%2:
+        sys.exit()
+    extended=[samples[0]]*(gap/2)+samples+[samples[-1]]*(gap/2)
+    ret=[]
+    for i in range(0,len(samples)):
+        ret.append(fun(extended[(i):(i+gap)]))
+    return ret
+   
 def paper_time():
     return time.time()
     return start_time+(start_tick-pygame.time.get_ticks())/1000.0
@@ -85,6 +98,10 @@ def sparkline_angle(data):
 
     first=1
     fangle=1
+
+    across=[]
+    updown=[]
+
     for event in data['stroke']:
         pos=event['pos']
         x=pos[0]
@@ -110,10 +127,19 @@ def sparkline_angle(data):
                         delta_t-=2*numpy.pi
                     angle+=delta_t
 
-                ret['stroke'].append({'pos':(acc_x,base_y+angle*10),'time':time.time()})
+                across.append(acc_x)
+                updown.append(angle*10)
+
+#               ret['stroke'].append({'pos':(acc_x,base_y+angle*10),'time':time.time()})
                 old_t=t
         old_x=x
         old_y=y
+
+    t=time.time()
+    median=bucket(updown,7,med)
+    for i in range(0,len(across)):
+        ret['stroke'].append({'pos':(across[i],base_y+median[i]),'time':t})
+        
     ret['bbox']=bbox(ret['stroke'])
     return ret
 
