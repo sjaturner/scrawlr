@@ -79,10 +79,12 @@ def bbox(s):
 def sparkline_angle(data):
     ret={}
     ret['stroke']=[]
-    first=1
     base_x=data['bbox'][1][0]
     acc_x=base_x
     base_y=(data['bbox'][0][1]+data['bbox'][1][1])/2
+
+    first=1
+    fangle=1
     for event in data['stroke']:
         pos=event['pos']
         x=pos[0]
@@ -94,14 +96,27 @@ def sparkline_angle(data):
             dy=y-old_y
             r=numpy.sqrt(dx**2 + dy**2)
             if r>0.0:
-                t=numpy.arctan2(dy, dx)
                 acc_x+=r
-                ret['stroke'].append({'pos':(acc_x,base_y+t*10),'time':time.time()})
+                t=numpy.arctan2(dy, dx)
+                if fangle:
+                    fangle=0
+                    angle=t
+                    old_t=t
+                else:
+                    delta_t=t-old_t
+                    if delta_t<numpy.pi:
+                        delta_t+=2*numpy.pi
+                    if delta_t>numpy.pi:
+                        delta_t-=2*numpy.pi
+                    angle+=delta_t
+
+                ret['stroke'].append({'pos':(acc_x,base_y+angle*10),'time':time.time()})
+                old_t=t
         old_x=x
         old_y=y
     ret['bbox']=bbox(ret['stroke'])
     return ret
-    
+
 def record_append(data):
     record.append(data)
     record.append(sparkline_angle(data))
