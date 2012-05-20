@@ -25,6 +25,48 @@ orgy=0
 start_time=time.time()
 start_tick=pygame.time.get_ticks()
 
+def line_points(x0, y0, x1, y1):
+   sx=x0
+   sy=y0
+   a=[]
+   steep = abs(y1 - y0) > abs(x1 - x0)
+   if steep:
+      x0, y0 = y0, x0  
+      x1, y1 = y1, x1
+
+   if x0 > x1:
+      x0, x1 = x1, x0
+      y0, y1 = y1, y0
+   
+   if y0 < y1: 
+      ystep = 1
+   else:
+      ystep = -1
+
+   deltax = x1 - x0
+   deltay = abs(y1 - y0)
+   error = -deltax / 2
+   y = y0
+
+   for x in range(x0, x1 + 1): # We add 1 to x1 so that the range includes x1
+      if steep:
+         a.append((y, x))
+      else:
+         a.append((x, y))
+            
+      error = error + deltay
+      if error > 0:
+         y = y + ystep
+         error = error - deltax
+   
+   (x,y)=a[0]
+   if x==sx and y==sy:
+      pass
+   else:
+      a.reverse()
+
+   return a
+
 def med(a):
     return sorted(a)[len(a)/2]
 
@@ -94,20 +136,12 @@ def bbox(s):
             maxy=y
     return ((minx,miny),(maxx,maxy))
     
-def sparkline_angle(data):
-    ret={}
-    ret['stroke']=[]
-    base_x=data['bbox'][1][0]
-    acc_x=base_x
-    base_y=(data['bbox'][0][1]+data['bbox'][1][1])/2
-
+def distangle(stroke):
     first=1
     fangle=1
-
-    across=[]
-    updown=[]
-
-    for event in data['stroke']:
+    acc_x=0
+    ret=[]
+    for event in stroke:
         pos=event['pos']
         x=pos[0]
         y=pos[1]
@@ -132,26 +166,76 @@ def sparkline_angle(data):
                         delta_t-=2*numpy.pi
                     angle+=delta_t
 
-                across.append(acc_x)
-                updown.append(angle*10)
-
-#               ret['stroke'].append({'pos':(acc_x,base_y+angle*10),'time':time.time()})
+                ret.append((acc_x,angle))
                 old_t=t
         old_x=x
         old_y=y
+    return ret
 
-    t=time.time()
-    median=updown; # bucket(updown,7,med)
-    for i in range(0,len(across)):
-        ret['stroke'].append({'pos':(across[i],base_y+median[i]),'time':t})
+def sparkline_angle(data):
+    ret={}
+    ret['stroke']=[]
+    base_x=data['bbox'][1][0]
+    base_y=(data['bbox'][0][1]+data['bbox'][1][1])/2
+
+    graph=distangle(data['stroke'])
+
+    for (x,y) in graph:
+        ret['stroke'].append({'pos':(base_x+x,base_y+y*10),'time':0})
         
     ret['bbox']=bbox(ret['stroke'])
     ret['colour']=red
     return ret
 
+def mean(a):
+    return sum(a)/len(a)
+
+def sparkline_filter(data):
+    ret={}
+    ret['stroke']=[]
+    base_x=data['bbox'][1][0]
+    base_y=(data['bbox'][0][1]+data['bbox'][1][1])/2
+
+    graph=distangle(data['stroke'])
+    points={}
+
+    minx=maxint
+    maxx=minint
+
+    if len(graph)>=2:
+        for i in range(0,len(graph)-1):
+            x0=graph[i+0][0]
+            y0=graph[i+0][1]
+            x1=graph[i+1][0]
+            y1=graph[i+1][1]
+            for (x,y) in line_points(x0,y0,x1,y1):
+                ix=int(x)
+                if ix>maxx:
+                    maxx=ix
+                if ix<minx:
+                    minx=ix
+                if ix in points:
+                    points[ix].append(y)
+                else:
+                    points[ix]=[y]
+
+    uniq_points=[]
+    
+    last=mean(points[minx])
+    for x in range(minx,maxx+1):
+        if x in points:
+            m=mean(points[x])
+            uniq_points.append((x,m))
+            last=m
+        else:
+            uniq_points.append((x,last))
+    print uniq_points      
+
+
 def record_append(data):
     record.append(data)
     record.append(sparkline_angle(data))
+    sparkline_filter(data)
 
 def main():
     global stroke
