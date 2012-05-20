@@ -190,6 +190,46 @@ def sparkline_angle(data):
 def mean(a):
     return sum(a)/len(a)
 
+def poldiff(a,b):
+    pi=numpy.pi
+    ret=a-b
+    while ret<-pi:
+        ret+=2*pi
+    while ret>+pi:
+        ret-=2*pi
+#   print  '   ',a,b,ret
+    return ret
+
+def filter(a,swing,bw,bs):
+    ret=[]
+    if len(a)<2*bw+1:
+        return ret
+    for center in range(0+bw,len(a)-bw):
+        best_score=0
+        best_scan=0.0
+        scan=0.0
+        while scan<2*numpy.pi:
+            score=0
+#           print scan
+            for i in range(center-bw,center):
+                y=a[i][1]
+                if abs(poldiff(y,scan-swing))<numpy.pi/(2*bs):
+                    score+=1
+#                   print '      score',numpy.pi/(2*bs)
+            for i in range(center,center+bw):
+                y=a[i][1]
+                if abs(poldiff(y,scan+swing))<numpy.pi/(2*bs):
+                    score+=1
+#                   print '      score',numpy.pi/(2*bs)
+            if score>best_score:
+                best_score=score
+                best_scan=scan
+            scan+=numpy.pi/(4*bs)
+        ret.append((best_scan,best_score))
+        print center,best_scan,best_score
+    return ret
+
+
 def sparkline_filter(data):
     ret={}
     ret['stroke']=[]
@@ -229,9 +269,9 @@ def sparkline_filter(data):
             last=m
         else:
             uniq_points.append((x,last))
-    print uniq_points      
 
-
+    filter(uniq_points,numpy.pi/2,10,8)
+    
 def record_append(data):
     record.append(data)
     record.append(sparkline_angle(data))
