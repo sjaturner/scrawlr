@@ -11,6 +11,7 @@ width=800
 height=600
 ink=(0,0,0)
 paper=(255, 255, 255)
+red=(255, 0, 0)
 line=(255-0x40, 255-0x40, 255-0x40)
 maxint=sys.maxint
 minint=-sys.maxint-1
@@ -40,7 +41,7 @@ def paper_time():
     return time.time()
     return start_time+(start_tick-pygame.time.get_ticks())/1000.0
     
-def stroke_render(s):
+def stroke_render(s,colour):
     pointlist=[]
     if len(s)<2:
         return
@@ -48,7 +49,7 @@ def stroke_render(s):
         x=item['pos'][0]-orgx
         y=item['pos'][1]-orgy
         pointlist.append((x,y))
-    pygame.draw.lines(screen,ink,False,pointlist,1)
+    pygame.draw.lines(screen,colour,False,pointlist,1)
 
 def render():
     linegap=40
@@ -58,9 +59,13 @@ def render():
         oy=y-orgy%linegap
         pygame.draw.lines(screen,line,False,((0,oy),(width,oy)),1)
     for item in record:
-        stroke_render(item['stroke'])
+        if 'colour' in item:
+            colour=item['colour']
+        else:
+            colour=ink
+        stroke_render(item['stroke'],colour)
     if stroke:
-        stroke_render(stroke)
+        stroke_render(stroke,ink)
     pygame.display.flip()
     pass
 
@@ -136,11 +141,12 @@ def sparkline_angle(data):
         old_y=y
 
     t=time.time()
-    median=bucket(updown,7,med)
+    median=updown; # bucket(updown,7,med)
     for i in range(0,len(across)):
         ret['stroke'].append({'pos':(across[i],base_y+median[i]),'time':t})
         
     ret['bbox']=bbox(ret['stroke'])
+    ret['colour']=red
     return ret
 
 def record_append(data):
