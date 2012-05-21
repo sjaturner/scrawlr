@@ -265,12 +265,31 @@ def sparkline_filter(data):
     for x in range(minx,maxx+1):
         if x in points:
             m=mean(points[x])
-            uniq_points.append((x,m))
+            uniq_points.append([x,m])
             last=m
         else:
-            uniq_points.append((x,last))
+            uniq_points.append([x,last])
+    g=7
 
-    filter(uniq_points,numpy.pi/2,10,8)
+    if len(uniq_points)>2*g:
+        for i in range(g):
+            uniq_points[i].append(0)
+        for i in range(g,len(uniq_points)-g):
+            uniq_points[i].append(abs(poldiff(uniq_points[i-g][1],uniq_points[i+g][1])))
+        for i in range(len(uniq_points)-g,len(uniq_points)):
+            uniq_points[i].append(0)
+        arg=[int(x[2]*1000) for x in uniq_points]
+        if len(arg)%2:
+            arg.append(arg[-1])
+        median=bucket(arg,7,med)
+        for item in median:
+            print item
+        
+#   print median
+    for item in uniq_points:
+        print item[0],item[1],item[2]
+
+#   filter(uniq_points,numpy.pi/2,10,8)
     
 def record_append(data):
     record.append(data)
