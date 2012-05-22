@@ -267,10 +267,11 @@ def sparkline_filter(data):
         for i in range(len(uniq_points)-g,len(uniq_points)):
             uniq_points[i].append(0)
         arg=[int(x[2]*1000) for x in uniq_points]
-        median=bucket(arg,1+2*g,med)
-    ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0],zip(uniq_points,median))
+        median=bucket(arg,(2*g)/g+1,med)
+    threshold=2.0
+    ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0>2.0]],zip(uniq_points,median))
     for item in ret:
-        print item[0],item[1],item[2],item[3]
+        print item[0],item[1],item[2],item[3],item[4]
 
 def record_append(data):
     record.append(data)
