@@ -1,3 +1,12 @@
+#   in this order
+#       ensure that the angle and points representations overlay correctly with distance along stroke equivalence
+#       be able to slice stuff up using the median filter corner detection trick
+#       build a library of the split stuff which references back to the original strokes
+#       consider inserting paired stuff into library in case the split has been over zealous
+#       the library will contain downsampled sliced stuff with say sixteen sample points median filtered
+#       some way of displaying this on the fly would be nice
+#       consider crossing detection as another cue
+
 import os
 import sys
 import time
@@ -166,7 +175,7 @@ def distangle(stroke):
                         delta_t-=2*numpy.pi
                     angle+=delta_t
 
-                ret.append((acc_x,angle))
+                ret.append((int(acc_x),angle))
                 old_t=t
         old_x=x
         old_y=y
@@ -200,36 +209,6 @@ def poldiff(a,b):
 #   print  '   ',a,b,ret
     return ret
 
-def filter(a,swing,bw,bs):
-    ret=[]
-    if len(a)<2*bw+1:
-        return ret
-    for center in range(0+bw,len(a)-bw):
-        best_score=0
-        best_scan=0.0
-        scan=0.0
-        while scan<2*numpy.pi:
-            score=0
-#           print scan
-            for i in range(center-bw,center):
-                y=a[i][1]
-                if abs(poldiff(y,scan-swing))<numpy.pi/(2*bs):
-                    score+=1
-#                   print '      score',numpy.pi/(2*bs)
-            for i in range(center,center+bw):
-                y=a[i][1]
-                if abs(poldiff(y,scan+swing))<numpy.pi/(2*bs):
-                    score+=1
-#                   print '      score',numpy.pi/(2*bs)
-            if score>best_score:
-                best_score=score
-                best_scan=scan
-            scan+=numpy.pi/(4*bs)
-        ret.append((best_scan,best_score))
-        print center,best_scan,best_score
-    return ret
-
-
 def sparkline_filter(data):
     ret={}
     ret['stroke']=[]
@@ -242,12 +221,17 @@ def sparkline_filter(data):
     minx=maxint
     maxx=minint
 
+    for x,y in graph:
+        print x,y
+
+    print
+
     if len(graph)>=2:
         for i in range(0,len(graph)-1):
-            x0=graph[i+0][0]
-            y0=graph[i+0][1]
-            x1=graph[i+1][0]
-            y1=graph[i+1][1]
+            x0=int(graph[i+0][0])
+            y0=int(10*graph[i+0][1])
+            x1=int(graph[i+1][0])
+            y1=int(10*graph[i+1][1])
             for (x,y) in line_points(x0,y0,x1,y1):
                 ix=int(x)
                 if ix>maxx:
@@ -260,7 +244,7 @@ def sparkline_filter(data):
                     points[ix]=[y]
 
     uniq_points=[]
-    
+
     last=mean(points[minx])
     for x in range(minx,maxx+1):
         if x in points:
@@ -269,6 +253,12 @@ def sparkline_filter(data):
             last=m
         else:
             uniq_points.append([x,last])
+
+    for p in uniq_points:
+        print p
+
+    return
+
     g=7
 
     if len(uniq_points)>2*g:
@@ -285,12 +275,10 @@ def sparkline_filter(data):
         for item in median:
             print item
         
-#   print median
+    print median
     for item in uniq_points:
         print item[0],item[1],item[2]
 
-#   filter(uniq_points,numpy.pi/2,10,8)
-    
 def record_append(data):
     record.append(data)
     record.append(sparkline_angle(data))
