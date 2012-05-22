@@ -1,5 +1,5 @@
 #   in this order
-#       ensure that the angle and points representations overlay correctly with distance along stroke equivalence
+#       ensure that the angle and points representations overlay correctly with distance along stroke equivalence (done)
 #       be able to slice stuff up using the median filter corner detection trick
 #       build a library of the split stuff which references back to the original strokes
 #       consider inserting paired stuff into library in case the split has been over zealous
@@ -221,17 +221,17 @@ def sparkline_filter(data):
     minx=maxint
     maxx=minint
 
-    for x,y in graph:
-        print x,y
+#   for x,y in graph:
+#       print x,y
+#   print
 
-    print
-
+    scale=100.0
     if len(graph)>=2:
         for i in range(0,len(graph)-1):
             x0=int(graph[i+0][0])
-            y0=int(10*graph[i+0][1])
+            y0=int(scale*graph[i+0][1])
             x1=int(graph[i+1][0])
-            y1=int(10*graph[i+1][1])
+            y1=int(scale*graph[i+1][1])
             for (x,y) in line_points(x0,y0,x1,y1):
                 ix=int(x)
                 if ix>maxx:
@@ -239,9 +239,9 @@ def sparkline_filter(data):
                 if ix<minx:
                     minx=ix
                 if ix in points:
-                    points[ix].append(y)
+                    points[ix].append(y/scale)
                 else:
-                    points[ix]=[y]
+                    points[ix]=[y/scale]
 
     uniq_points=[]
 
@@ -254,10 +254,8 @@ def sparkline_filter(data):
         else:
             uniq_points.append([x,last])
 
-    for p in uniq_points:
-        print p
-
-    return
+#   for p in uniq_points:
+#       print p
 
     g=7
 
@@ -269,15 +267,10 @@ def sparkline_filter(data):
         for i in range(len(uniq_points)-g,len(uniq_points)):
             uniq_points[i].append(0)
         arg=[int(x[2]*1000) for x in uniq_points]
-        if len(arg)%2:
-            arg.append(arg[-1])
-        median=bucket(arg,7,med)
-        for item in median:
-            print item
-        
-    print median
-    for item in uniq_points:
-        print item[0],item[1],item[2]
+        median=bucket(arg,1+2*g,med)
+    ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0],zip(uniq_points,median))
+    for item in ret:
+        print item[0],item[1],item[2],item[3]
 
 def record_append(data):
     record.append(data)
