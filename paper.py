@@ -216,20 +216,17 @@ def resample(a,n):
 
     step=float(len(a))/float(n)
     base=0.0
+    ret=[]
     while base<len(a):
         slice=a[int(base):int(base+step)]
         base+=step;
-        for x in slice:
-            print '%0.02f'%x,
-        print
-        
-    print
+        slice.sort()
+        ret.append(med(slice)) 
+    return ret
 
 def sparkline_filter(data):
     ret={}
     ret['stroke']=[]
-    base_x=data['bbox'][1][0]
-    base_y=(data['bbox'][0][1]+data['bbox'][1][1])/2
 
     graph=distangle(data['stroke'])
     points={}
@@ -242,22 +239,24 @@ def sparkline_filter(data):
 #   print
 
     scale=100.0
-    if len(graph)>=2:
-        for i in range(0,len(graph)-1):
-            x0=int(graph[i+0][0])
-            y0=int(scale*graph[i+0][1])
-            x1=int(graph[i+1][0])
-            y1=int(scale*graph[i+1][1])
-            for (x,y) in line_points(x0,y0,x1,y1):
-                ix=int(x)
-                if ix>maxx:
-                    maxx=ix
-                if ix<minx:
-                    minx=ix
-                if ix in points:
-                    points[ix].append(y/scale)
-                else:
-                    points[ix]=[y/scale]
+    if len(graph)<2:
+        return
+
+    for i in range(0,len(graph)-1):
+        x0=int(graph[i+0][0])
+        y0=int(scale*graph[i+0][1])
+        x1=int(graph[i+1][0])
+        y1=int(scale*graph[i+1][1])
+        for (x,y) in line_points(x0,y0,x1,y1):
+            ix=int(x)
+            if ix>maxx:
+                maxx=ix
+            if ix<minx:
+                minx=ix
+            if ix in points:
+                points[ix].append(y/scale)
+            else:
+                points[ix]=[y/scale]
 
     uniq_points=[]
 
@@ -287,8 +286,8 @@ def sparkline_filter(data):
 
     threshold=2.0
     ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0<2.0]],zip(uniq_points,median))
-    for item in ret:
-        print item[0],item[1],item[2],item[3],item[4]
+#   for item in ret:
+#       print item[0],item[1],item[2],item[3],item[4]
 
     state='up'
     acc=[]
