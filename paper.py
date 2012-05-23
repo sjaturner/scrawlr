@@ -209,6 +209,22 @@ def poldiff(a,b):
 #   print  '   ',a,b,ret
     return ret
 
+sections=[]
+def resample(a,n):
+    while len(a)<64:
+        a=[val for val in a for x in (0, 1)]
+
+    step=float(len(a))/float(n)
+    base=0.0
+    while base<len(a):
+        slice=a[int(base):int(base+step)]
+        base+=step;
+        for x in slice:
+            print '%0.02f'%x,
+        print
+        
+    print
+
 def sparkline_filter(data):
     ret={}
     ret['stroke']=[]
@@ -257,21 +273,36 @@ def sparkline_filter(data):
 #   for p in uniq_points:
 #       print p
 
-    g=7
+    gap=7
 
-    if len(uniq_points)>2*g:
-        for i in range(g):
+    if len(uniq_points)>2*gap:
+        for i in range(gap):
             uniq_points[i].append(0)
-        for i in range(g,len(uniq_points)-g):
-            uniq_points[i].append(abs(poldiff(uniq_points[i-g][1],uniq_points[i+g][1])))
-        for i in range(len(uniq_points)-g,len(uniq_points)):
+        for i in range(gap,len(uniq_points)-gap):
+            uniq_points[i].append(abs(poldiff(uniq_points[i-gap][1],uniq_points[i+gap][1])))
+        for i in range(len(uniq_points)-gap,len(uniq_points)):
             uniq_points[i].append(0)
         arg=[int(x[2]*1000) for x in uniq_points]
-        median=bucket(arg,(2*g)/g+1,med)
+        median=bucket(arg,(2*gap)/gap+1,med)
+
     threshold=2.0
-    ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0>2.0]],zip(uniq_points,median))
+    ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0<2.0]],zip(uniq_points,median))
     for item in ret:
         print item[0],item[1],item[2],item[3],item[4]
+
+    state='up'
+    acc=[]
+    for x,y,a,m,t in ret:
+        if state=='up' and not t:
+            resample(acc,16)
+            state='down'
+        elif state=='down' and t:
+            acc=[]
+            state='up'
+        if state=='up':
+            acc.append(y)
+    if acc:
+        resample(acc,16)
 
 def record_append(data):
     record.append(data)
