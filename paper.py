@@ -1,6 +1,6 @@
 #   in this order
 #       ensure that the angle and points representations overlay correctly with distance along stroke equivalence (done)
-#       be able to slice stuff up using the median filter corner detection trick
+#       be able to slice stuff up using the median filter corner detection trick (done)
 #       build a library of the split stuff which references back to the original strokes
 #       consider inserting paired stuff into library in case the split has been over zealous
 #       the library will contain downsampled sliced stuff with say sixteen sample points median filtered
@@ -209,7 +209,21 @@ def poldiff(a,b):
 #   print  '   ',a,b,ret
     return ret
 
-sections=[]
+def correlate(a,b):
+    if len(a)!=len(b):
+        print 'correlate only works for matched length sections'
+        sys.exit
+
+    return sum(map(lambda (x,y):abs(poldiff(x,y)),zip(a,b)))
+
+sections={}
+def add_section(data,sec)
+    #   for now, need to add the new section and recalculate the best fits
+    #   which will get tiring pretty soon
+    #   also need a way to display this stuff
+    #       maybe just render it on the page each time
+    pass
+
 def resample(a,n):
     while len(a)<64:
         a=[val for val in a for x in (0, 1)]
@@ -289,11 +303,17 @@ def sparkline_filter(data):
 #   for item in ret:
 #       print item[0],item[1],item[2],item[3],item[4]
 
+    nsample=16
+
     state='up'
+    tot=[]
+    sec=[]
+
     acc=[]
     for x,y,a,m,t in ret:
+        tot.append(y)
         if state=='up' and not t:
-            resample(acc,16)
+            sec.append({'len':len(acc),'resampled':resample(acc,nsample)})
             state='down'
         elif state=='down' and t:
             acc=[]
@@ -301,7 +321,13 @@ def sparkline_filter(data):
         if state=='up':
             acc.append(y)
     if acc:
-        resample(acc,16)
+        sec.append({'len':len(acc),'resampled':resample(acc,nsample)})
+
+    data['sec']=sec
+    data['tot']=tot
+
+    for section in sec:
+        add_section(data,section)
 
 def record_append(data):
     record.append(data)
