@@ -217,12 +217,22 @@ def correlate(a,b):
     return sum(map(lambda (x,y):abs(poldiff(x,y)),zip(a,b)))
 
 sections={}
-def add_section(data,sec)
+def add_section(data,sec):
     #   for now, need to add the new section and recalculate the best fits
     #   which will get tiring pretty soon
     #   also need a way to display this stuff
-    #       maybe just render it on the page each time
-    pass
+    #       maybe just render it on the page each time 
+    sections[sec['resampled']]={'len':sec['len']} # ,'data':data}
+
+    for outer in sections:
+        scores={}
+        for inner in sections:
+            if outer==inner:
+                continue
+            scores[correlate(outer,inner)]=inner
+        sections[outer]['best']=[{'score':score,'resampled':scores[score]} for score in sorted(scores.keys())]
+
+    pprint.pprint(sections)
 
 def resample(a,n):
     while len(a)<64:
@@ -236,7 +246,7 @@ def resample(a,n):
         base+=step;
         slice.sort()
         ret.append(med(slice)) 
-    return ret
+    return tuple(ret)
 
 def sparkline_filter(data):
     ret={}
