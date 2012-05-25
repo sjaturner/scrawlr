@@ -16,7 +16,7 @@ import simplejson
 import pprint
 import numpy
 
-width=800
+width=1200
 height=600
 ink=(0,0,0)
 paper=(255, 255, 255)
@@ -102,10 +102,42 @@ def stroke_render(s,colour):
         pointlist.append((x,y))
     pygame.draw.lines(screen,colour,False,pointlist,1)
 
+sections={}
+last_section={}
+
+def section_render(section,x,y,colour):
+    off=0
+    for val in section:
+        lx=int(x+off*2)
+        ly=int(y+2*(val%(2*numpy.pi)))
+        pygame.draw.circle(screen,colour,(lx,ly),1,0)
+        off+=1
+
+
 def render():
     linegap=40
     colgap=width
     screen.fill(paper)
+
+    x=0
+    y=8
+    for section in sections:
+        section_render(section,x,y,ink)
+        for correlated in sections[section]['best']:
+            x+=40
+            score=8*correlated['score']
+            if score>255:
+                score=255
+            resampled=correlated['resampled']
+            if correlated==last_section: # does not work yet
+                gb=0
+            else:
+                gb=score
+            color=(score,gb,gb)
+            section_render(resampled,x,y,color)
+        y+=20
+        x=0
+
     for y in range(0,height,linegap):
         oy=y-orgy%linegap
         pygame.draw.lines(screen,line,False,((0,oy),(width,oy)),1)
@@ -118,7 +150,6 @@ def render():
     if stroke:
         stroke_render(stroke,ink)
     pygame.display.flip()
-    pass
 
 def stroke_append(pos):
     event={}
@@ -216,7 +247,6 @@ def correlate(a,b):
 
     return sum(map(lambda (x,y):abs(poldiff(x,y)),zip(a,b)))
 
-sections={}
 def add_section(data,sec):
     #   for now, need to add the new section and recalculate the best fits
     #   which will get tiring pretty soon
@@ -231,8 +261,9 @@ def add_section(data,sec):
                 continue
             scores[correlate(outer,inner)]=inner
         sections[outer]['best']=[{'score':score,'resampled':scores[score]} for score in sorted(scores.keys())]
+    last_section=sec['resampled']
 
-    pprint.pprint(sections)
+#   pprint.pprint(sections)
 
 def resample(a,n):
     while len(a)<64:
