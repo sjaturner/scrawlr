@@ -106,6 +106,7 @@ sections={}
 last_section={}
 
 def section_render(section,x,y,colour):
+    pygame.draw.rect(screen,ink,((x,y),(32,int(4*numpy.pi))),1)
     off=0
     for val in section:
         lx=int(x+off*2)
