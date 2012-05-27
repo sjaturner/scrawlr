@@ -387,6 +387,7 @@ def main():
     pygame.display.flip()
 
     while True:
+        refresh=1
         e=pygame.event.wait()
         if e.type == pygame.QUIT:
             return
@@ -413,9 +414,13 @@ def main():
                 orgy+=y
                 dorg=e.pos
             elif down:
+                refresh=0
                 stroke_append(e.pos)
+                stroke_render(stroke,ink)
+                pygame.display.update()
                 
-        render()
+        if refresh:
+            render()
 
 if len(sys.argv)==2:
     filename=sys.argv[1]
