@@ -27,6 +27,9 @@ minint=-sys.maxint-1
 
 record=[]
 stroke=[]
+sel=None
+sel_w=0
+sel_h=0
 
 orgx=0
 orgy=0
@@ -150,6 +153,10 @@ def render():
         stroke_render(item['stroke'],colour)
     if stroke:
         stroke_render(stroke,ink)
+
+    if sel and sel_w and sel_h:
+        pygame.draw.rect(screen,(255,0,0),((sel[0],sel[1]),(sel_w,sel_h)),1)
+     
     pygame.display.flip()
 
 def stroke_append(pos):
@@ -380,6 +387,9 @@ def main():
     global stroke
     global orgx
     global orgy
+    global sel
+    global sel_w
+    global sel_h
 
     dorg=(0,0)
     drag=0
@@ -393,11 +403,27 @@ def main():
             return
 
         pressed=pygame.mouse.get_pressed()
+
+        if (e.type == pygame.KEYUP) or (e.type == pygame.KEYDOWN):
+            print e
+            sel=None
+            sel_w=0
+            sel_h=0
+
+        if e.type == pygame.MOUSEBUTTONDOWN and e.button==3:
+            sel=e.pos
+            sel_w=0
+            sel_h=0
+        elif e.type == pygame.MOUSEBUTTONUP and e.button==3:
+            sel_w=e.pos[0]-sel[0]
+            sel_h=e.pos[1]-sel[1]
+
         if e.type == pygame.MOUSEBUTTONDOWN and e.button==2:
             drag=1
             dorg=e.pos
         elif e.type == pygame.MOUSEBUTTONUP and e.button==2:
             drag=0
+
         if e.type == pygame.MOUSEBUTTONDOWN and e.button==1:
             down=1
             stroke=[]
