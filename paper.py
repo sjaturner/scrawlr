@@ -6,6 +6,7 @@
 #       the library will contain downsampled sliced stuff with say sixteen sample points median filtered
 #       some way of displaying this on the fly would be nice
 #       consider crossing detection as another cue
+#       colours for inferred characters, told characters and unknown characters
 
 import os
 import sys
