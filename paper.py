@@ -404,8 +404,9 @@ def main():
 
         pressed=pygame.mouse.get_pressed()
 
-        if (e.type == pygame.KEYUP) or (e.type == pygame.KEYDOWN):
+        if e.type == pygame.KEYDOWN:
             print e
+        elif e.type == pygame.KEYUP:
             sel=None
             sel_w=0
             sel_h=0
