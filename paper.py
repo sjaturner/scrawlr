@@ -26,6 +26,8 @@ line=(255-0x40, 255-0x40, 255-0x40)
 maxint=sys.maxint
 minint=-sys.maxint-1
 
+selected_item=None
+do_letters=None
 record=[]
 stroke=[]
 sel=None
@@ -119,11 +121,7 @@ def section_render(section,x,y,colour):
         off+=1
 
 
-def render():
-    linegap=40
-    colgap=width
-    screen.fill(paper)
-
+def show_correlation():
     x=0
     y=8
     for section in sections:
@@ -138,10 +136,43 @@ def render():
                 gb=0
             else:
                 gb=score
-            color=(score,gb,gb)
-            section_render(resampled,x,y,color)
+            colour=(score,gb,gb)
+            section_render(resampled,x,y,colour)
         y+=20
         x=0
+    
+def is_inside(outer,inner):
+    (outer_lt_x,outer_tl_y)=outer[0]
+    (outer_br_x,outer_br_y)=outer[1]
+
+    (inner_lt_x,inner_tl_y)=inner[0]
+    (inner_br_x,inner_br_y)=inner[1]
+
+    return outer_lt_x<inner_lt_x and outer_tl_y<inner_tl_y and outer_br_x>inner_br_x and outer_br_y>inner_br_y
+
+def find_stroke(bbox):
+    for item in record:
+        if is_inside(bbox,item['bbox']):
+            return item
+    return None
+    
+def render_char(x,y,c,colour):
+    text = font.render('%c'%c,0,(0,0,0))
+    textrect = text.get_rect()
+    textrect.centerx=10
+    textrect.centery=20
+    pygame.draw.rect(screen,paper,textrect)
+    screen.blit(text,textrect)
+
+def render():
+    global font
+    linegap=40
+    colgap=width
+    screen.fill(paper)
+
+    render_char(0,0,'a',ink)
+
+#   show_correlation()
 
     for y in range(0,height,linegap):
         oy=y-orgy%linegap
@@ -152,6 +183,8 @@ def render():
         else:
             colour=ink
         stroke_render(item['stroke'],colour)
+        if do_letters:
+            pass
     if stroke:
         stroke_render(stroke,ink)
 
@@ -391,6 +424,8 @@ def main():
     global sel
     global sel_w
     global sel_h
+    global selected_item
+    global do_letters
 
     dorg=(0,0)
     drag=0
@@ -414,9 +449,16 @@ def main():
 
         if e.type == pygame.MOUSEBUTTONDOWN and e.button==3:
             sel=e.pos
+            do_letters=1
             sel_w=0
             sel_h=0
         elif e.type == pygame.MOUSEBUTTONUP and e.button==3:
+            selected_item=find_stroke(((sel[0],sel[1]),(e.pos[0],e.pos[1])))
+
+            do_letters=0
+            if selected_item:
+                pprint.pprint(selected_item)
+            
             sel_w=e.pos[0]-sel[0]
             sel_h=e.pos[1]-sel[1]
 
@@ -461,6 +503,8 @@ if len(sys.argv)==2:
         orgy=int(org[1])
     
 screen=pygame.display.set_mode((width,height))
+pygame.font.init()
+font=pygame.font.Font(None, 20)
 render()
 
 main()
