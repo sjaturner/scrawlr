@@ -157,10 +157,10 @@ def find_stroke(bbox):
     return None
     
 def render_char(x,y,c,colour):
-    text = font.render('%c'%c,0,(0,0,0))
+    text = font.render('%c'%c,0,colour)
     textrect = text.get_rect()
-    textrect.centerx=10
-    textrect.centery=20
+    textrect.centerx=x
+    textrect.centery=y
     pygame.draw.rect(screen,paper,textrect)
     screen.blit(text,textrect)
 
@@ -170,7 +170,6 @@ def render():
     colgap=width
     screen.fill(paper)
 
-    render_char(0,0,'a',ink)
 
 #   show_correlation()
 
@@ -183,8 +182,14 @@ def render():
         else:
             colour=ink
         stroke_render(item['stroke'],colour)
-        if do_letters:
-            pass
+        if do_letters and 'bbox' in item and 'char' in item:
+            bbox=item['bbox']
+            if item['char']['type']=='told':
+                col=(255,0,0)
+            else:
+                col=ink
+            render_char(bbox[0][0],bbox[0][1],item['char']['val'],col)
+
     if stroke:
         stroke_render(stroke,ink)
 
@@ -414,7 +419,7 @@ def sparkline_filter(data):
 
 def record_append(data):
     record.append(data)
-    record.append(sparkline_angle(data))
+#   record.append(sparkline_angle(data))
     sparkline_filter(data)
 
 def main():
@@ -441,7 +446,8 @@ def main():
         pressed=pygame.mouse.get_pressed()
 
         if e.type == pygame.KEYDOWN:
-            print e
+            if e.unicode and selected_item:
+                selected_item['char']={'val':e.unicode,'type':'told'}
         elif e.type == pygame.KEYUP:
             sel=None
             sel_w=0
@@ -456,8 +462,8 @@ def main():
             selected_item=find_stroke(((sel[0],sel[1]),(e.pos[0],e.pos[1])))
 
             do_letters=0
-            if selected_item:
-                pprint.pprint(selected_item)
+#           if selected_item:
+#               pprint.pprint(selected_item)
             
             sel_w=e.pos[0]-sel[0]
             sel_h=e.pos[1]-sel[1]
