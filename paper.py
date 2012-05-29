@@ -1,10 +1,10 @@
 #   in this order
 #       ensure that the angle and points representations overlay correctly with distance along stroke equivalence (done)
 #       be able to slice stuff up using the median filter corner detection trick (done)
-#       build a library of the split stuff which references back to the original strokes
+#       build a library of the split stuff which references back to the original strokes (done)
 #       consider inserting paired stuff into library in case the split has been over zealous
-#       the library will contain downsampled sliced stuff with say sixteen sample points median filtered
-#       some way of displaying this on the fly would be nice
+#       the library will contain downsampled sliced stuff with say sixteen sample points median filtered (done)
+#       some way of displaying this on the fly would be nice (done)
 #       consider crossing detection as another cue
 #       colours for inferred characters, told characters and unknown characters
 
@@ -421,6 +421,13 @@ def record_append(data):
     record.append(data)
 #   record.append(sparkline_angle(data))
     sparkline_filter(data)
+    #   here is where we try to guess the letter
+    #       for each resampled section
+    #           find best correlated resampled
+    #           find out if this is part of a tagged section 
+    #           is it the corresponding part
+    #
+    #   need soon to consider letters made of more than one element, 't' is an example of this
 
 def main():
     global stroke
