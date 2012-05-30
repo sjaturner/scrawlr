@@ -299,7 +299,7 @@ def add_section(data,sec):
     #   which will get tiring pretty soon
     #   also need a way to display this stuff
     #       maybe just render it on the page each time 
-    sections[sec['resampled']]={'len':sec['len']} # ,'data':data}
+    sections[sec['resampled']]={'len':sec['len'],'data':data}
 
     for outer in sections:
         scores={}
@@ -421,6 +421,27 @@ def record_append(data):
     record.append(data)
 #   record.append(sparkline_angle(data))
     sparkline_filter(data)
+
+    mat=[]
+    for (i,sec) in enumerate(data['sec']):
+#       print i,sec
+        thing=sections[sec['resampled']]['best']
+        if len(thing):
+            if 'data' in sections[thing[0]['resampled']]:
+                pprint.pprint(sections[thing[0]['resampled']]['data'])
+                if 'char' in sections[thing[0]['resampled']]['data']:
+                    print sections[thing[0]['resampled']]['data']['char']
+                    if 'sec' in sections[thing[0]['resampled']]['data']:
+                        for (j,h) in enumerate(sections[thing[0]['resampled']]['data']['sec']):
+#                           print thing[0]['resampled']
+#                           print h['resampled'] 
+#                           print
+
+                            if thing[0]['resampled']==h['resampled']:
+                                mat.append((i,j,sections[thing[0]['resampled']]['data']['char']))
+
+    print mat
+
     #   here is where we try to guess the letter
     #       for each resampled section
     #           find best correlated resampled
