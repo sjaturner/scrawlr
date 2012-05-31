@@ -430,13 +430,16 @@ def record_append(data):
 #       print sections[sec['resampled']]['best']
         matches=sections[sec['resampled']]['best']
         for match in matches:
-            if match['score']>10.0:
+            score=match['score']
+            if score>10.0:
                 continue
+
+            # probably good to retain an idea of scale for matching purposes
 
             if 'data' in sections[match['resampled']]:
                 pprint.pprint(sections[match['resampled']]['data'])
                 if 'char' in sections[match['resampled']]['data']:
-                    print sections[match['resampled']]['data']['char']
+#                   print sections[match['resampled']]['data']['char']
                     if 'sec' in sections[match['resampled']]['data']:
                         for (j,h) in enumerate(sections[match['resampled']]['data']['sec']):
 #                           print match['resampled']
@@ -444,10 +447,10 @@ def record_append(data):
 #                           print
 
                             if match['resampled']==h['resampled']:
-                                mat.append((i,j,sections[match['resampled']]['data']['char']))
+                                mat.append((i,j,sections[match['resampled']]['data']['char'],score))
                                 # omfg that is terrible
 
-    print mat
+    pprint.pprint(sorted(mat,lambda x,y:x[0]-y[0]))
 
     #   here is where we try to guess the letter
     #       for each resampled section
@@ -495,7 +498,7 @@ def main():
             sel_w=0
             sel_h=0
         elif e.type == pygame.MOUSEBUTTONUP and e.button==3:
-            selected_item=find_stroke(((sel[0],sel[1]),(e.pos[0],e.pos[1])))
+            selected_item=find_stroke(((sel[0]+orgx,sel[1]+orgy),(e.pos[0]+orgx,e.pos[1]+orgy)))
 
             do_letters=0
 #           if selected_item:
