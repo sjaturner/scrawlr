@@ -427,20 +427,25 @@ def record_append(data):
     mat=[]
     for (i,sec) in enumerate(data['sec']):
 #       print i,sec
-        thing=sections[sec['resampled']]['best']
-        if len(thing):
-            if 'data' in sections[thing[0]['resampled']]:
-                pprint.pprint(sections[thing[0]['resampled']]['data'])
-                if 'char' in sections[thing[0]['resampled']]['data']:
-                    print sections[thing[0]['resampled']]['data']['char']
-                    if 'sec' in sections[thing[0]['resampled']]['data']:
-                        for (j,h) in enumerate(sections[thing[0]['resampled']]['data']['sec']):
-#                           print thing[0]['resampled']
+#       print sections[sec['resampled']]['best']
+        matches=sections[sec['resampled']]['best']
+        for match in matches:
+            if match['score']>10.0:
+                continue
+
+            if 'data' in sections[match['resampled']]:
+                pprint.pprint(sections[match['resampled']]['data'])
+                if 'char' in sections[match['resampled']]['data']:
+                    print sections[match['resampled']]['data']['char']
+                    if 'sec' in sections[match['resampled']]['data']:
+                        for (j,h) in enumerate(sections[match['resampled']]['data']['sec']):
+#                           print match['resampled']
 #                           print h['resampled'] 
 #                           print
 
-                            if thing[0]['resampled']==h['resampled']:
-                                mat.append((i,j,sections[thing[0]['resampled']]['data']['char']))
+                            if match['resampled']==h['resampled']:
+                                mat.append((i,j,sections[match['resampled']]['data']['char']))
+                                # omfg that is terrible
 
     print mat
 
