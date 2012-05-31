@@ -157,6 +157,8 @@ def find_stroke(bbox):
     return None
     
 def render_char(x,y,c,colour):
+    x-=orgx
+    y-=orgy
     text = font.render('%c'%c,0,colour)
     textrect = text.get_rect()
     textrect.centerx=x
@@ -464,6 +466,7 @@ def main():
     drag=0
     down=0
     pygame.display.flip()
+    startpos={}
 
     while True:
         refresh=1
@@ -506,10 +509,12 @@ def main():
             down=1
             stroke=[]
             stroke_append(e.pos)
+            startpos=e.pos
         elif e.type == pygame.MOUSEBUTTONUP and e.button==1:
             down=0
             stroke_append(e.pos)
-            record_append({'stroke':stroke,'bbox':bbox(stroke)})
+            if len(stroke) and startpos!=e.pos:
+                record_append({'stroke':stroke,'bbox':bbox(stroke)})
         elif e.type == pygame.MOUSEMOTION:
             if drag:
                 x=dorg[0]-e.pos[0]
