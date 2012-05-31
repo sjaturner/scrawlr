@@ -378,6 +378,7 @@ def sparkline_filter(data):
 
     gap=7
 
+    
     if len(uniq_points)>2*gap:
         for i in range(gap):
             uniq_points[i].append(0)
@@ -388,8 +389,8 @@ def sparkline_filter(data):
         arg=[int(x[2]*1000) for x in uniq_points]
         median=bucket(arg,(2*gap)/gap+1,med)
 
-    threshold=2.0
-    ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0<2.0]],zip(uniq_points,median))
+        threshold=2.0
+        ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0<2.0]],zip(uniq_points,median))
 #   for item in ret:
 #       print item[0],item[1],item[2],item[3],item[4]
 
@@ -424,14 +425,17 @@ def record_append(data):
 #   record.append(sparkline_angle(data))
     sparkline_filter(data)
 
+    match_threshold=10.0
     mat=[]
+    if not ('sec' in data):
+        return 
     for (i,sec) in enumerate(data['sec']):
 #       print i,sec
 #       print sections[sec['resampled']]['best']
         matches=sections[sec['resampled']]['best']
         for match in matches:
             score=match['score']
-            if score>10.0:
+            if score>match_threshold:
                 continue
 
             # probably good to retain an idea of scale for matching purposes
@@ -451,14 +455,15 @@ def record_append(data):
                                 # omfg that is terrible
 
     pprint.pprint(sorted(mat,lambda x,y:x[0]-y[0]))
+    # now we need to find something in mat which has all the same sections in the same order associated with the same letter
+    # failing that, we find the best of these, as guesses and probably colour them or shade them accordingly
 
-    #   here is where we try to guess the letter
-    #       for each resampled section
-    #           find best correlated resampled
-    #           find out if this is part of a tagged section 
-    #           is it the corresponding part
-    #
-    #   need soon to consider letters made of more than one element, 't' is an example of this
+    # next consider strokes which intersect
+    # some may intersect more than once 
+    # it would be nice to take account of the intersection location on the normalised (perhaps) stroke but this may be tough
+    # intersections might be enough for a start
+
+
 
 def main():
     global stroke
