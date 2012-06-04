@@ -441,7 +441,7 @@ def record_append(data):
             # probably good to retain an idea of scale for matching purposes
 
             if 'data' in sections[match['resampled']]:
-                pprint.pprint(sections[match['resampled']]['data'])
+#               pprint.pprint(sections[match['resampled']]['data'])
                 if 'char' in sections[match['resampled']]['data']:
 #                   print sections[match['resampled']]['data']['char']
                     if 'sec' in sections[match['resampled']]['data']:
@@ -454,9 +454,53 @@ def record_append(data):
                                 mat.append((i,j,sections[match['resampled']]['data']['char'],score))
                                 # omfg that is terrible
 
-    pprint.pprint(sorted(mat,lambda x,y:x[0]-y[0]))
+#   pprint.pprint(sorted(mat,lambda x,y:x[0]-y[0]))
+
+    lhash={}
+
+    for (sec,msec,char,score) in mat:
+        if char['type']!='told':
+            continue
+        if sec!=msec:
+            continue
+        if char['val'] not in lhash:
+            lhash[char['val']]={}
+            lhash[char['val']][sec]=score
+        elif sec not in lhash[char['val']]:
+            lhash[char['val']][sec]=score
+        else:
+            if score<lhash[char['val']][sec]:
+                lhash[char['val']][sec]=score
+
+#   pprint.pprint(lhash)
+
+    best_score=1000000
+    best_letter=''
+
+    for letter in lhash:
+        if len(data['sec']) != len(lhash[letter]):
+            continue
+        print letter,
+        pprint.pprint(lhash[letter])
+        print
+        tot=0
+        for index in lhash[letter]:
+            score=lhash[letter][index]
+            tot+=score
+        if score<best_score:
+            best_score=score
+            best_letter=letter
+
+    print 'best', best_letter
+            
+
+
     # now we need to find something in mat which has all the same sections in the same order associated with the same letter
     # failing that, we find the best of these, as guesses and probably colour them or shade them accordingly
+    # match heirarchy
+    #   sequential matches on same character instance
+    #   sequential matches on same character
+    #   resolve with scores in the event of a tie
 
     # next consider strokes which intersect
     # some may intersect more than once 
@@ -544,16 +588,19 @@ def main():
         if refresh:
             render()
 
-if len(sys.argv)==2:
+import pickle
+
+if len(sys.argv)>=2:
     filename=sys.argv[1]
     if os.path.exists(filename):
         f=open(filename)
-        json=f.readline()
-        record=simplejson.loads(json)
-        org=f.readline().strip().split()
-        orgx=int(org[0])
-        orgy=int(org[1])
-    
+        u=pickle.Unpickler(f)
+        inobj=u.load()
+        record=inobj['record']
+        orgx=inobj['orgx']
+        orgy=inobj['orgy']
+        sections=inobj['sections']
+
 screen=pygame.display.set_mode((width,height))
 pygame.font.init()
 font=pygame.font.Font(None, 20)
@@ -561,5 +608,19 @@ render()
 
 main()
 
-print simplejson.dumps(record)
-print orgx,orgy
+def saveable_sections(sections):
+    ret={}
+    for section in sections:
+        ret[section.__str__()]=sections[section]
+    return ret
+    
+if len(sys.argv)==3:
+    filename=sys.argv[2]
+    if os.path.exists(filename):
+        f=open(filename,'w')
+    outobj={}
+    outobj['record']=record
+    outobj['orgx']=orgx
+    outobj['orgy']=orgy
+    outobj['sections']=sections
+    pickle.dump(outobj,f)
