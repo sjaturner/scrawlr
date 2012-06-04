@@ -296,14 +296,18 @@ def correlate(a,b):
 
     return sum(map(lambda (x,y):abs(poldiff(x,y)),zip(a,b)))
 
-def add_section(data,sec):
+def _add_section(data,sec):
     #   for now, need to add the new section and recalculate the best fits
     #   which will get tiring pretty soon
     #   also need a way to display this stuff
     #       maybe just render it on the page each time 
     sections[sec['resampled']]={'len':sec['len'],'data':data}
 
+    pprint.pprint(sections.keys())
+
     for outer in sections:
+#       print outer
+#       print sections[outer]
         scores={}
         for inner in sections:
             if outer==inner:
@@ -314,6 +318,34 @@ def add_section(data,sec):
 
 #   pprint.pprint(sections)
 
+def cmp_score(x,y):
+    xsc=x['score']
+    ysc=y['score']
+    
+    if xsc>ysc:
+        return +1
+    elif xsc<ysc:
+        return -1
+    else:
+        return 0
+
+def add_section(data,sec):
+    sec_resampled=sec['resampled']
+    keys=sections.keys()
+
+    for resampled in sections:
+        sections[resampled]['best'].append({'score':correlate(resampled,sec_resampled),'resampled':sec_resampled})
+        sections[resampled]['best'].sort()
+
+    sections[sec_resampled]={'len':sec['len'],'data':data}
+    best=[]
+    for key in keys:
+        best.append({'score':correlate(sec_resampled,key),'resampled':key})
+    sections[sec_resampled]['best']=sorted(best,cmp_score)
+
+    pprint.pprint(sections[sec_resampled]['best'])
+
+#   pprint.pprint(sections)
 def resample(a,n):
     while len(a)<64:
         a=[val for val in a for x in (0, 1)]
