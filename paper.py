@@ -342,8 +342,9 @@ def add_section(data,sec):
     for key in keys:
         best.append({'score':correlate(sec_resampled,key),'resampled':key})
     sections[sec_resampled]['best']=sorted(best,cmp_score)
+    sections[sec_resampled]['len']=sec['len']
 
-    pprint.pprint(sections[sec_resampled]['best'])
+#   pprint.pprint(sections[sec_resampled]['best'])
 
 #   pprint.pprint(sections)
 def resample(a,n):
@@ -483,14 +484,17 @@ def record_append(data):
 #                           print
 
                             if match['resampled']==h['resampled']:
-                                mat.append((i,j,sections[match['resampled']]['data']['char'],score))
+                                mat.append((i,j,sections[match['resampled']]['data'],score))
                                 # omfg that is terrible
 
 #   pprint.pprint(sorted(mat,lambda x,y:x[0]-y[0]))
 
     lhash={}
 
-    for (sec,msec,char,score) in mat:
+    for (sec,msec,mdata,score) in mat:
+        if len(data['sec']) != len(mdata['sec']):
+            continue
+        char=mdata['char']
         if char['type']!='told':
             continue
         if sec!=msec:
@@ -504,7 +508,7 @@ def record_append(data):
             if score<lhash[char['val']][sec]:
                 lhash[char['val']][sec]=score
 
-#   pprint.pprint(lhash)
+    pprint.pprint(lhash)
 
     best_score=1000000
     best_letter=''
