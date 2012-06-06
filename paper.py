@@ -329,6 +329,8 @@ def cmp_score(x,y):
     else:
         return 0
 
+correlation={}
+
 def add_section(data,sec):
     sec_resampled=sec['resampled']
     keys=sections.keys()
@@ -343,6 +345,13 @@ def add_section(data,sec):
         best.append({'score':correlate(sec_resampled,key),'resampled':key})
     sections[sec_resampled]['best']=sorted(best,cmp_score)
     sections[sec_resampled]['len']=sec['len']
+
+    for section in correlation:
+        score=correlate(section,sec_resampled)
+        correlation[section][sec_resampled]=score
+        correlation[sec_resampled]={}
+        correlation[sec_resampled]=score
+
 
 #   pprint.pprint(sections[sec_resampled]['best'])
 
@@ -456,7 +465,7 @@ def sparkline_filter(data):
 def proportion(data,sec):
     return sec['len']/len(data['tot'])
 
-def record_append(data):
+def _record_append(data):
     record.append(data)
 #   record.append(sparkline_angle(data))
     sparkline_filter(data)
@@ -549,7 +558,28 @@ def record_append(data):
     # it would be nice to take account of the intersection location on the normalised (perhaps) stroke but this may be tough
     # intersections might be enough for a start
 
+def record_append(data):
+    sparkline_filter(data)
+    pprint.pprint(data)
 
+    for item in record:
+        len_item=len(item['sec'])
+        len_data=len(data['sec'])
+
+        if len_item>len_data:
+            most,len_most=item,len_item
+            least,len_least=data,len_data
+        else:
+            most,len_most=data,len_data
+            least,len_least=item,len_item
+
+        for offset in range(len_most-len_least+1):
+            for scan in range(len_least):
+                score=correlate(most['sec'][offset+scan]['resampled'],least['sec'][scan]['resampled'])
+                print offset,scan,score
+        print
+
+    record.append(data)
 
 def main():
     global stroke
