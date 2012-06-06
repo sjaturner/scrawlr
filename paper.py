@@ -453,6 +453,9 @@ def sparkline_filter(data):
     for section in sec:
         add_section(data,section)
 
+def proportion(data,sec):
+    return sec['len']/len(data['tot'])
+
 def record_append(data):
     record.append(data)
 #   record.append(sparkline_angle(data))
@@ -473,18 +476,21 @@ def record_append(data):
 
             # probably good to retain an idea of scale for matching purposes
 
-            if 'data' in sections[match['resampled']]:
-#               pprint.pprint(sections[match['resampled']]['data'])
-                if 'char' in sections[match['resampled']]['data']:
-#                   print sections[match['resampled']]['data']['char']
-                    if 'sec' in sections[match['resampled']]['data']:
-                        for (j,h) in enumerate(sections[match['resampled']]['data']['sec']):
+            sections_match_resampled=sections[match['resampled']]
+            match_data=sections_match_resampled['data']
+            if 'data' in sections_match_resampled:
+#               pprint.pprint(match_data)
+                if 'char' in match_data:
+#                   print match_data['char']
+                    if 'sec' in match_data:
+                        for (imatch,secmatch) in enumerate(match_data['sec']):
 #                           print match['resampled']
-#                           print h['resampled'] 
+#                           print secmatch['resampled'] 
 #                           print
 
-                            if match['resampled']==h['resampled']:
-                                mat.append((i,j,sections[match['resampled']]['data'],score))
+                            prop_score=score/(1+abs(proportion(match_data,secmatch)-proportion(data,sec)))
+                            if match['resampled']==secmatch['resampled']:
+                                mat.append((i,imatch,match_data,prop_score))
                                 # omfg that is terrible
 
 #   pprint.pprint(sorted(mat,lambda x,y:x[0]-y[0]))
