@@ -573,10 +573,43 @@ def record_append(data):
             most,len_most=data,len_data
             least,len_least=item,len_item
 
+        mosttotallen=len(most['tot'])
+        leasttotallen=len(least['tot'])
+
         for offset in range(len_most-len_least+1):
+            loghi=minint
+            loglo=maxint
+            accmostlen=0.0
+            accleastlen=0.0
+            accscore=0.0
             for scan in range(len_least):
                 score=correlate(most['sec'][offset+scan]['resampled'],least['sec'][scan]['resampled'])
-                print offset,scan,score
+                accscore+=score
+
+                mostlen=most['sec'][offset+scan]['len']
+                accmostlen+=mostlen
+
+                leastlen=least['sec'][scan]['len']
+                accleastlen+=leastlen
+
+                lograt=numpy.log(float(mostlen)/float(leastlen))
+                
+                if lograt>loghi:
+                    loghi=lograt
+
+                if lograt<loglo:
+                    loglo=lograt
+
+                print 
+                print least['sec'][scan]['len']
+                print offset,scan,score,lograt,mostlen,leastlen
+            logscale=loghi-loglo
+            leastrat=accleastlen/leasttotallen
+            mostrat=accmostlen/mosttotallen
+            print logscale,leastrat,mostrat,accscore
+            print accscore/(leastrat*mostrat)
+            
+        print
         print
 
     record.append(data)
