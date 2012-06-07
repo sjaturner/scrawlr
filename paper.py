@@ -611,7 +611,7 @@ def record_append(data):
             final_score=accscore/(leastrat*mostrat)
             print final_score
             
-            if !best_score or score<best_score:
+            if not best_score or score<best_score:
                 best_item=item
                 best_score=final_score
             
