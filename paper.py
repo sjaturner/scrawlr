@@ -289,7 +289,7 @@ def poldiff(a,b):
 #   print  '   ',a,b,ret
     return ret
 
-def correlate(a,b):
+def correlate(a,b): # memoize this
     if len(a)!=len(b):
         print 'correlate only works for matched length sections'
         sys.exit
@@ -544,8 +544,6 @@ def _record_append(data):
 
     print 'best', best_letter
             
-
-
     # now we need to find something in mat which has all the same sections in the same order associated with the same letter
     # failing that, we find the best of these, as guesses and probably colour them or shade them accordingly
     # match heirarchy
@@ -561,6 +559,9 @@ def _record_append(data):
 def record_append(data):
     sparkline_filter(data)
     pprint.pprint(data)
+
+    best_item=None
+    best_score=float(maxint)
 
     for item in record:
         len_item=len(item['sec'])
@@ -607,7 +608,12 @@ def record_append(data):
             leastrat=accleastlen/leasttotallen
             mostrat=accmostlen/mosttotallen
             print logscale,leastrat,mostrat,accscore
-            print accscore/(leastrat*mostrat)
+            final_score=accscore/(leastrat*mostrat)
+            print final_score
+            
+            if !best_score or score<best_score:
+                best_item=item
+                best_score=final_score
             
         print
         print
