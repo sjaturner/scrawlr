@@ -601,22 +601,21 @@ def record_append(data):
                 if lograt<loglo:
                     loglo=lograt
 
-                print 
-                print least['sec'][scan]['len']
-                print offset,scan,score,lograt,mostlen,leastlen
+#               print 
+#               print least['sec'][scan]['len']
+#               print offset,scan,score,lograt,mostlen,leastlen
             logscale=loghi-loglo
             leastrat=accleastlen/leasttotallen
             mostrat=accmostlen/mosttotallen
-            print logscale,leastrat,mostrat,accscore
+#           print logscale,leastrat,mostrat,accscore
             final_score=accscore/(leastrat*mostrat)
-            print final_score
+#           print final_score
             
-            if not best_score or score<best_score:
+            if not best_item or final_score<best_score:
                 best_item=item
                 best_score=final_score
             
-        print
-        print
+    pprint.pprint(best_item)
 
     record.append(data)
 
