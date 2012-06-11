@@ -556,13 +556,25 @@ def _record_append(data):
     # it would be nice to take account of the intersection location on the normalised (perhaps) stroke but this may be tough
     # intersections might be enough for a start
 
+def score_cmp(x,y):
+    xsc=y[0]
+    ysc=x[0]
+
+    if xsc>ysc:
+        return +1
+    elif xsc<ysc:
+        return -1
+    else:
+        return 0
+
 def record_append(data):
     sparkline_filter(data)
-    pprint.pprint(data)
+#   pprint.pprint(data)
 
-    best_item=None
-    best_score=float(maxint)
+#   best_item=None
+#   best_score=float(maxint)
 
+    ret=[]
     for item in record:
         len_item=len(item['sec'])
         len_data=len(data['sec'])
@@ -608,14 +620,24 @@ def record_append(data):
             leastrat=accleastlen/leasttotallen
             mostrat=accmostlen/mosttotallen
 #           print logscale,leastrat,mostrat,accscore
-            final_score=accscore/(leastrat*mostrat)
+            final_score=accscore/((leastrat*mostrat)**3)
 #           print final_score
             
-            if not best_item or final_score<best_score:
-                best_item=item
-                best_score=final_score
+#           if 'char' in item and 'type' in item['char'] and item['char']['type']=='told':
+#               result.append((final_score,item['char']['val']))
             
-    pprint.pprint(best_item)
+            ret.append((final_score,item))
+
+#           if not best_item or final_score<best_score:
+#               best_item=item
+#               best_score=final_score
+        
+    for (score,item) in sorted(ret,score_cmp):
+            if 'char' in item and 'type' in item['char'] and item['char']['type']=='told':
+                print score,item['char']['val']
+
+
+#   pprint.pprint(sorted(result,lambda x,y:x[0]-y[0]))
 
     record.append(data)
 
