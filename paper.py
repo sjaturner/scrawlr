@@ -109,7 +109,7 @@ def stroke_render(s,colour):
     pygame.draw.lines(screen,colour,False,pointlist,1)
 
 sections={}
-last_section={}
+last_data=None
 
 def section_render(section,x,y,colour):
     pygame.draw.rect(screen,ink,((x,y),(32,int(4*numpy.pi))),1)
@@ -120,27 +120,6 @@ def section_render(section,x,y,colour):
         pygame.draw.circle(screen,colour,(lx,ly),1,0)
         off+=1
 
-
-def show_correlation():
-    x=0
-    y=8
-    for section in sections:
-        section_render(section,x,y,ink)
-        for correlated in sections[section]['best']:
-            x+=40
-            score=8*correlated['score']
-            if score>255:
-                score=255
-            resampled=correlated['resampled']
-            if correlated==last_section: # does not work yet
-                gb=0
-            else:
-                gb=score
-            colour=(score,gb,gb)
-            section_render(resampled,x,y,colour)
-        y+=20
-        x=0
-    
 def is_inside(outer,inner):
     (outer_lt_x,outer_tl_y)=outer[0]
     (outer_br_x,outer_br_y)=outer[1]
@@ -172,8 +151,11 @@ def render():
     colgap=width
     screen.fill(paper)
 
-
-#   show_correlation()
+    if last_data:
+        ix=0
+        for sec in last_data['sec']:
+            section_render(sec['resampled'],ix,0,0x80)
+            ix+=34
 
     for y in range(0,height,linegap):
         oy=y-orgy%linegap
@@ -261,21 +243,6 @@ def distangle(stroke):
         old_y=y
     return ret
 
-def sparkline_angle(data):
-    ret={}
-    ret['stroke']=[]
-    base_x=data['bbox'][1][0]
-    base_y=(data['bbox'][0][1]+data['bbox'][1][1])/2
-
-    graph=distangle(data['stroke'])
-
-    for (x,y) in graph:
-        ret['stroke'].append({'pos':(base_x+x,base_y+y*10),'time':0})
-        
-    ret['bbox']=bbox(ret['stroke'])
-    ret['colour']=red
-    return ret
-
 def mean(a):
     return sum(a)/len(a)
 
@@ -289,34 +256,29 @@ def poldiff(a,b):
 #   print  '   ',a,b,ret
     return ret
 
+correlated={}
+
 def correlate(a,b): # memoize this
     if len(a)!=len(b):
         print 'correlate only works for matched length sections'
         sys.exit
 
-    return sum(map(lambda (x,y):abs(poldiff(x,y)),zip(a,b)))
+    global correlated
 
-def _add_section(data,sec):
-    #   for now, need to add the new section and recalculate the best fits
-    #   which will get tiring pretty soon
-    #   also need a way to display this stuff
-    #       maybe just render it on the page each time 
-    sections[sec['resampled']]={'len':sec['len'],'data':data}
+    if a in correlated and b in correlated[a]:
+        return correlated[a][b]
+    if b in correlated and a in correlated[b]:
+        return correlated[b][a]
 
-    pprint.pprint(sections.keys())
+    val=sum(map(lambda (x,y):abs(poldiff(x,y)),zip(a,b)))
 
-    for outer in sections:
-#       print outer
-#       print sections[outer]
-        scores={}
-        for inner in sections:
-            if outer==inner:
-                continue
-            scores[correlate(outer,inner)]=inner
-        sections[outer]['best']=[{'score':score,'resampled':scores[score]} for score in sorted(scores.keys())]
-    last_section=sec['resampled']
+    correlated[a]={}
+    correlated[a][b]=val
 
-#   pprint.pprint(sections)
+    correlated[b]={}
+    correlated[b][a]=val
+
+    return val
 
 def cmp_score(x,y):
     xsc=x['score']
@@ -329,33 +291,6 @@ def cmp_score(x,y):
     else:
         return 0
 
-correlation={}
-
-def add_section(data,sec):
-    sec_resampled=sec['resampled']
-    keys=sections.keys()
-
-    for resampled in sections:
-        sections[resampled]['best'].append({'score':correlate(resampled,sec_resampled),'resampled':sec_resampled})
-        sections[resampled]['best'].sort()
-
-    sections[sec_resampled]={'len':sec['len'],'data':data}
-    best=[]
-    for key in keys:
-        best.append({'score':correlate(sec_resampled,key),'resampled':key})
-    sections[sec_resampled]['best']=sorted(best,cmp_score)
-    sections[sec_resampled]['len']=sec['len']
-
-    for section in correlation:
-        score=correlate(section,sec_resampled)
-        correlation[section][sec_resampled]=score
-        correlation[sec_resampled]={}
-        correlation[sec_resampled]=score
-
-
-#   pprint.pprint(sections[sec_resampled]['best'])
-
-#   pprint.pprint(sections)
 def resample(a,n):
     while len(a)<64:
         a=[val for val in a for x in (0, 1)]
@@ -379,10 +314,6 @@ def sparkline_filter(data):
 
     minx=maxint
     maxx=minint
-
-#   for x,y in graph:
-#       print x,y
-#   print
 
     scale=100.0
     if len(graph)<2:
@@ -415,11 +346,7 @@ def sparkline_filter(data):
         else:
             uniq_points.append([x,last])
 
-#   for p in uniq_points:
-#       print p
-
-    gap=7
-
+    gap=5
     
     if len(uniq_points)>2*gap:
         for i in range(gap):
@@ -433,8 +360,6 @@ def sparkline_filter(data):
 
         threshold=2.0
         ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0<2.0]],zip(uniq_points,median))
-#   for item in ret:
-#       print item[0],item[1],item[2],item[3],item[4]
 
     nsample=16
 
@@ -459,102 +384,8 @@ def sparkline_filter(data):
     data['sec']=sec
     data['tot']=tot
 
-    for section in sec:
-        add_section(data,section)
-
 def proportion(data,sec):
     return sec['len']/len(data['tot'])
-
-def _record_append(data):
-    record.append(data)
-#   record.append(sparkline_angle(data))
-    sparkline_filter(data)
-
-    match_threshold=10.0
-    mat=[]
-    if not ('sec' in data):
-        return 
-    for (i,sec) in enumerate(data['sec']):
-#       print i,sec
-#       print sections[sec['resampled']]['best']
-        matches=sections[sec['resampled']]['best']
-        for match in matches:
-            score=match['score']
-            if score>match_threshold:
-                continue
-
-            # probably good to retain an idea of scale for matching purposes
-
-            sections_match_resampled=sections[match['resampled']]
-            match_data=sections_match_resampled['data']
-            if 'data' in sections_match_resampled:
-#               pprint.pprint(match_data)
-                if 'char' in match_data:
-#                   print match_data['char']
-                    if 'sec' in match_data:
-                        for (imatch,secmatch) in enumerate(match_data['sec']):
-#                           print match['resampled']
-#                           print secmatch['resampled'] 
-#                           print
-
-                            prop_score=score/(1+abs(proportion(match_data,secmatch)-proportion(data,sec)))
-                            if match['resampled']==secmatch['resampled']:
-                                mat.append((i,imatch,match_data,prop_score))
-                                # omfg that is terrible
-
-#   pprint.pprint(sorted(mat,lambda x,y:x[0]-y[0]))
-
-    lhash={}
-
-    for (sec,msec,mdata,score) in mat:
-        if len(data['sec']) != len(mdata['sec']):
-            continue
-        char=mdata['char']
-        if char['type']!='told':
-            continue
-        if sec!=msec:
-            continue
-        if char['val'] not in lhash:
-            lhash[char['val']]={}
-            lhash[char['val']][sec]=score
-        elif sec not in lhash[char['val']]:
-            lhash[char['val']][sec]=score
-        else:
-            if score<lhash[char['val']][sec]:
-                lhash[char['val']][sec]=score
-
-    pprint.pprint(lhash)
-
-    best_score=1000000
-    best_letter=''
-
-    for letter in lhash:
-        if len(data['sec']) != len(lhash[letter]):
-            continue
-        print letter,
-        pprint.pprint(lhash[letter])
-        print
-        tot=0
-        for index in lhash[letter]:
-            score=lhash[letter][index]
-            tot+=score
-        if score<best_score:
-            best_score=score
-            best_letter=letter
-
-    print 'best', best_letter
-            
-    # now we need to find something in mat which has all the same sections in the same order associated with the same letter
-    # failing that, we find the best of these, as guesses and probably colour them or shade them accordingly
-    # match heirarchy
-    #   sequential matches on same character instance
-    #   sequential matches on same character
-    #   resolve with scores in the event of a tie
-
-    # next consider strokes which intersect
-    # some may intersect more than once 
-    # it would be nice to take account of the intersection location on the normalised (perhaps) stroke but this may be tough
-    # intersections might be enough for a start
 
 def score_cmp(x,y):
     xsc=y[0]
@@ -568,13 +399,13 @@ def score_cmp(x,y):
         return 0
 
 def record_append(data):
+    global last_data
     sparkline_filter(data)
-#   pprint.pprint(data)
-
-#   best_item=None
-#   best_score=float(maxint)
 
     ret=[]
+
+    last_data=data
+
     for item in record:
         len_item=len(item['sec'])
         len_data=len(data['sec'])
@@ -613,31 +444,17 @@ def record_append(data):
                 if lograt<loglo:
                     loglo=lograt
 
-#               print 
-#               print least['sec'][scan]['len']
-#               print offset,scan,score,lograt,mostlen,leastlen
             logscale=loghi-loglo
             leastrat=accleastlen/leasttotallen
             mostrat=accmostlen/mosttotallen
-#           print logscale,leastrat,mostrat,accscore
+
             final_score=accscore/((leastrat*mostrat)**3)
-#           print final_score
-            
-#           if 'char' in item and 'type' in item['char'] and item['char']['type']=='told':
-#               result.append((final_score,item['char']['val']))
             
             ret.append((final_score,item))
-
-#           if not best_item or final_score<best_score:
-#               best_item=item
-#               best_score=final_score
         
     for (score,item) in sorted(ret,score_cmp):
             if 'char' in item and 'type' in item['char'] and item['char']['type']=='told':
                 print score,item['char']['val']
-
-
-#   pprint.pprint(sorted(result,lambda x,y:x[0]-y[0]))
 
     record.append(data)
 
@@ -682,8 +499,6 @@ def main():
             selected_item=find_stroke(((sel[0]+orgx,sel[1]+orgy),(e.pos[0]+orgx,e.pos[1]+orgy)))
 
             do_letters=0
-#           if selected_item:
-#               pprint.pprint(selected_item)
             
             sel_w=e.pos[0]-sel[0]
             sel_h=e.pos[1]-sel[1]
