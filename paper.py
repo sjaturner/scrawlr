@@ -170,6 +170,8 @@ def render():
             bbox=item['bbox']
             if item['char']['type']=='told':
                 col=(255,0,0)
+            elif item['char']['type']=='guess':
+                col=(0,255,0)
             else:
                 col=ink
             render_char(bbox[0][0],bbox[0][1],item['char']['val'],col)
@@ -452,9 +454,15 @@ def record_append(data):
             
             ret.append((final_score,item))
         
-    for (score,item) in sorted(ret,score_cmp):
-            if 'char' in item and 'type' in item['char'] and item['char']['type']=='told':
-                print score,item['char']['val']
+    ret.sort(score_cmp)
+
+    for (score,item) in ret:
+        if 'char' in item and 'type' in item['char'] and item['char']['type']=='told':
+            print score,item['char']['val']
+
+            data['char']={}
+            data['char']['type']='guess'
+            data['char']['val']=item['char']['val']
 
     record.append(data)
 
@@ -484,7 +492,11 @@ def main():
 
         if e.type == pygame.KEYDOWN:
             if e.unicode and selected_item:
-                selected_item['char']={'val':e.unicode,'type':'told'}
+                if e.unicode == u'\r':
+                    if 'char' in selected_item and 'type' in selected_item['char'] and selected_item['char']['type']=='guess':
+                        selected_item['char']['type']='told'
+                else:
+                    selected_item['char']={'val':e.unicode,'type':'told'}
         elif e.type == pygame.KEYUP:
             sel=None
             sel_w=0
