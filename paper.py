@@ -2,11 +2,35 @@
 #       ensure that the angle and points representations overlay correctly with distance along stroke equivalence (done)
 #       be able to slice stuff up using the median filter corner detection trick (done)
 #       build a library of the split stuff which references back to the original strokes (done)
-#       consider inserting paired stuff into library in case the split has been over zealous
 #       the library will contain downsampled sliced stuff with say sixteen sample points median filtered (done)
 #       some way of displaying this on the fly would be nice (done)
+#       colours for inferred characters, told characters and unknown characters(done)
+#       consider inserting paired stuff into library in case the split has been over zealous
 #       consider crossing detection as another cue
-#       colours for inferred characters, told characters and unknown characters
+#       need to detect strokes which cross, use the bbox and then line algorithm
+
+#   groups of connected strokes
+#   letters are groups of connected strokes but some groups have only one member
+#   as stroke, letter has a bounding box
+#   going to need a list of letters somewhere
+#   letter identity with stroke is simply incorrect
+
+#   consider that intersecting regions may be for any stroke
+#       numerous
+#       prolonged
+#   starts to look like a matrix representing a graph and these are hard to compare
+#   expect that consideration of close matches and matrices will be required in some cases
+#   however, many matches come out of the simple case of two or three strokes
+#       most of the lower case set [fkx]
+#       more complex upper case [abdfhikrx]
+#   perhaps a simpler classification mechanism will suffice in the first instance
+#       match the stroke components 
+#       determine whether they are in contact with other related components
+#       ignore the geometry and connectedness initially
+
+#   think that selected item has to go though
+#   require a table of connected strokes
+#   entries to this in record append, at the end of this in fact
 
 import os
 import sys
@@ -26,19 +50,21 @@ line=(255-0x40, 255-0x40, 255-0x40)
 maxint=sys.maxint
 minint=-sys.maxint-1
 
-selected_item=None
-do_letters=None
-record=[]
-stroke=[]
+do_letters=None # renders letters too
+record=[] # record of strokes with normalised angles and so on
+stroke=[] # the one being built
+
+# way to complicated
+selected_item=None # this ought to be the current selection bounding box
 sel=None
 sel_w=0
 sel_h=0
 
+# top left corner of rendered view
 orgx=0
 orgy=0
 
 start_time=time.time()
-start_tick=pygame.time.get_ticks()
 
 def line_points(x0, y0, x1, y1):
    sx=x0
@@ -96,7 +122,6 @@ def bucket(samples,gap,fun):
    
 def paper_time():
     return time.time()
-    return start_time+(start_tick-pygame.time.get_ticks())/1000.0
     
 def stroke_render(s,colour):
     pointlist=[]
@@ -108,8 +133,8 @@ def stroke_render(s,colour):
         pointlist.append((x,y))
     pygame.draw.lines(screen,colour,False,pointlist,1)
 
-sections={}
-last_data=None
+sections={} # do we really need this any more, check that save and restore work and if they do then remove this
+last_data=None # just used to show the normalised angle data for the most recent stroke
 
 def section_render(section,x,y,colour):
     pygame.draw.rect(screen,ink,((x,y),(32,int(4*numpy.pi))),1)
@@ -129,13 +154,13 @@ def is_inside(outer,inner):
 
     return outer_lt_x<inner_lt_x and outer_tl_y<inner_tl_y and outer_br_x>inner_br_x and outer_br_y>inner_br_y
 
-def find_stroke(bbox):
+def find_stroke(bbox): # becomes some sort of iterator perhaps
     for item in record:
         if is_inside(bbox,item['bbox']):
             return item
     return None
     
-def render_char(x,y,c,colour):
+def render_char(x,y,c,colour): # renders the characters near the letter
     x-=orgx
     y-=orgy
     text = font.render('%c'%c,0,colour)
