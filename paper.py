@@ -133,7 +133,6 @@ def stroke_render(s,colour):
         pointlist.append((x,y))
     pygame.draw.lines(screen,colour,False,pointlist,1)
 
-sections={} # do we really need this any more, check that save and restore work and if they do then remove this
 last_data=None # just used to show the normalised angle data for the most recent stroke
 
 def section_render(section,x,y,colour):
@@ -583,7 +582,6 @@ if len(sys.argv)>=2:
         record=inobj['record']
         orgx=inobj['orgx']
         orgy=inobj['orgy']
-#       sections=inobj['sections']
 
 screen=pygame.display.set_mode((width,height))
 pygame.font.init()
@@ -600,5 +598,4 @@ if len(sys.argv)==3:
     outobj['record']=record
     outobj['orgx']=orgx
     outobj['orgy']=orgy
-#   outobj['sections']=sections
     pickle.dump(outobj,f)
