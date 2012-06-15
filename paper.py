@@ -583,7 +583,7 @@ if len(sys.argv)>=2:
         record=inobj['record']
         orgx=inobj['orgx']
         orgy=inobj['orgy']
-        sections=inobj['sections']
+#       sections=inobj['sections']
 
 screen=pygame.display.set_mode((width,height))
 pygame.font.init()
@@ -592,12 +592,6 @@ render()
 
 main()
 
-def saveable_sections(sections):
-    ret={}
-    for section in sections:
-        ret[section.__str__()]=sections[section]
-    return ret
-    
 if len(sys.argv)==3:
     filename=sys.argv[2]
     if os.path.exists(filename):
@@ -606,5 +600,5 @@ if len(sys.argv)==3:
     outobj['record']=record
     outobj['orgx']=orgx
     outobj['orgy']=orgy
-    outobj['sections']=sections
+#   outobj['sections']=sections
     pickle.dump(outobj,f)
