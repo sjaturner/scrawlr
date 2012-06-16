@@ -51,6 +51,7 @@ maxint=sys.maxint
 minint=-sys.maxint-1
 
 do_letters=None # renders letters too
+letters=[]
 record=[] # record of strokes with normalised angles and so on
 stroke=[] # the one being built
 
