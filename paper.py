@@ -52,11 +52,11 @@ minint=-sys.maxint-1
 
 do_letters=None # renders letters too
 letters=[]
-record=[] # record of strokes with normalised angles and so on
-stroke=[] # the one being built
+strokes=[] # record of strokes with normalised angles and so on
+current_stroke=[] # the one being built
 
 # way to complicated
-selected_item=None # this ought to be the current selection bounding box
+selected_letter=None # this ought to be the current selection bounding box
 sel=None
 sel_w=0
 sel_h=0
@@ -154,10 +154,12 @@ def is_inside(outer,inner):
 
     return outer_lt_x<inner_lt_x and outer_tl_y<inner_tl_y and outer_br_x>inner_br_x and outer_br_y>inner_br_y
 
-def find_stroke(bbox): # becomes some sort of iterator perhaps
-    for item in record:
+def find_letter(bbox): # becomes some sort of iterator perhaps
+    for letter in letters:
+#       for item in strokes:
+        item=letter['item']
         if is_inside(bbox,item['bbox']):
-            return item
+            return letter
     return None
     
 def render_char(x,y,c,colour): # renders the characters near the letter
@@ -185,37 +187,41 @@ def render():
     for y in range(0,height,linegap):
         oy=y-orgy%linegap
         pygame.draw.lines(screen,line,False,((0,oy),(width,oy)),1)
-    for item in record:
+
+    for item in strokes:
         if 'colour' in item:
             colour=item['colour']
         else:
             colour=ink
         stroke_render(item['stroke'],colour)
-        if do_letters and 'bbox' in item and 'char' in item:
+
+    for letter in letters:
+        item=letter['item']
+        if do_letters and 'bbox' in item and 'char' in letter:
             bbox=item['bbox']
-            if item['char']['type']=='told':
+            if letter['char']['type']=='told':
                 col=(255,0,0)
-            elif item['char']['type']=='guess':
+            elif letter['char']['type']=='guess':
                 col=(0,255,0)
             else:
                 col=ink
-            render_char(bbox[0][0],bbox[0][1],item['char']['val'],col)
+            render_char(bbox[0][0],bbox[0][1],letter['char']['val'],col)
 
-    if stroke:
-        stroke_render(stroke,ink)
+    if current_stroke:
+        stroke_render(current_stroke,ink)
 
     if sel and sel_w and sel_h:
         pygame.draw.rect(screen,(255,0,0),((sel[0],sel[1]),(sel_w,sel_h)),1)
      
     pygame.display.flip()
 
-def stroke_append(pos):
+def current_stroke_append(pos):
     event={}
     event['time']=paper_time()
     x=pos[0]+orgx
     y=pos[1]+orgy
     event['pos']=(x,y)
-    stroke.append(event)
+    current_stroke.append(event)
 
 def bbox(s):
     minx=maxint
@@ -425,7 +431,7 @@ def score_cmp(x,y):
     else:
         return 0
 
-def record_append(data):
+def strokes_append(data):
     global last_data
     sparkline_filter(data)
 
@@ -433,7 +439,9 @@ def record_append(data):
 
     last_data=data
 
-    for item in record:
+    for letter in letters:
+#   for item in strokes:
+        item=letter['item']
         len_item=len(item['sec'])
         len_data=len(data['sec'])
 
@@ -477,28 +485,32 @@ def record_append(data):
 
             final_score=accscore/((leastrat*mostrat)**3)
             
-            ret.append((final_score,item))
+            ret.append((final_score,item,letter))
         
     ret.sort(score_cmp)
 
-    for (score,item) in ret:
-        if 'char' in item and 'type' in item['char'] and item['char']['type']=='told':
-            print score,item['char']['val']
+    new_letter={}
+    new_letter['item']=data
 
-            data['char']={}
-            data['char']['type']='guess'
-            data['char']['val']=item['char']['val']
+    for (score,item,letter) in ret:
+        if 'char' in letter and 'type' in letter['char'] and letter['char']['type']=='told':
+            print score,letter['char']['val']
 
-    record.append(data)
+            new_letter['char']={}
+            new_letter['char']['type']='guess'
+            new_letter['char']['val']=letter['char']['val']
+
+    strokes.append(data)
+    letters.append(new_letter)
 
 def main():
-    global stroke
+    global current_stroke
     global orgx
     global orgy
     global sel
     global sel_w
     global sel_h
-    global selected_item
+    global selected_letter
     global do_letters
 
     dorg=(0,0)
@@ -516,12 +528,12 @@ def main():
         pressed=pygame.mouse.get_pressed()
 
         if e.type == pygame.KEYDOWN:
-            if e.unicode and selected_item:
+            if e.unicode and selected_letter:
                 if e.unicode == u'\r':
-                    if 'char' in selected_item and 'type' in selected_item['char'] and selected_item['char']['type']=='guess':
-                        selected_item['char']['type']='told'
+                    if 'char' in selected_letter and 'type' in selected_letter['char'] and selected_letter['char']['type']=='guess':
+                        selected_letter['char']['type']='told'
                 else:
-                    selected_item['char']={'val':e.unicode,'type':'told'}
+                    selected_letter['char']={'val':e.unicode,'type':'told'}
         elif e.type == pygame.KEYUP:
             sel=None
             sel_w=0
@@ -533,7 +545,7 @@ def main():
             sel_w=0
             sel_h=0
         elif e.type == pygame.MOUSEBUTTONUP and e.button==3:
-            selected_item=find_stroke(((sel[0]+orgx,sel[1]+orgy),(e.pos[0]+orgx,e.pos[1]+orgy)))
+            selected_letter=find_letter(((sel[0]+orgx,sel[1]+orgy),(e.pos[0]+orgx,e.pos[1]+orgy)))
 
             do_letters=0
             
@@ -548,14 +560,14 @@ def main():
 
         if e.type == pygame.MOUSEBUTTONDOWN and e.button==1:
             down=1
-            stroke=[]
-            stroke_append(e.pos)
+            current_stroke=[]
+            current_stroke_append(e.pos)
             startpos=e.pos
         elif e.type == pygame.MOUSEBUTTONUP and e.button==1:
             down=0
-            stroke_append(e.pos)
-            if len(stroke) and startpos!=e.pos:
-                record_append({'stroke':stroke,'bbox':bbox(stroke)})
+            current_stroke_append(e.pos)
+            if len(current_stroke) and startpos!=e.pos:
+                strokes_append({'stroke':current_stroke,'bbox':bbox(current_stroke)})
         elif e.type == pygame.MOUSEMOTION:
             if drag:
                 x=dorg[0]-e.pos[0]
@@ -565,8 +577,8 @@ def main():
                 dorg=e.pos
             elif down:
                 refresh=0
-                stroke_append(e.pos)
-                stroke_render(stroke,ink)
+                current_stroke_append(e.pos)
+                stroke_render(current_stroke,ink)
                 pygame.display.update()
                 
         if refresh:
@@ -580,7 +592,8 @@ if len(sys.argv)>=2:
         f=open(filename)
         u=pickle.Unpickler(f)
         inobj=u.load()
-        record=inobj['record']
+        strokes=inobj['strokes']
+        letters=inobj['letters']
         orgx=inobj['orgx']
         orgy=inobj['orgy']
 
@@ -596,7 +609,8 @@ if len(sys.argv)==3:
     if os.path.exists(filename):
         f=open(filename,'w')
     outobj={}
-    outobj['record']=record
+    outobj['strokes']=strokes
+    outobj['letters']=letters
     outobj['orgx']=orgx
     outobj['orgy']=orgy
     pickle.dump(outobj,f)
