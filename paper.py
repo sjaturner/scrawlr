@@ -516,6 +516,7 @@ def strokes_append(data):
     for stroke in strokes:
         if bbox_overlap(data['bbox'],stroke['bbox']):
             # now need to regenerate stroke and check that there is an intersection
+            # might be good to memoize the generated point sets
             multipart_letter=stroke['letter']
 
     if multipart_letter:
