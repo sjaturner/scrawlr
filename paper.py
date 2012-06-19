@@ -431,6 +431,55 @@ def score_cmp(x,y):
     else:
         return 0
 
+def stroke_difference(a,b):
+    ret=[]
+    len_a=len(a['sec'])
+    len_b=len(b['sec'])
+
+    if len_a>len_b:
+        most,len_most=a,len_a
+        least,len_least=b,len_b
+    else:
+        most,len_most=b,len_b
+        least,len_least=a,len_a
+
+    mosttotallen=len(most['tot'])
+    leasttotallen=len(least['tot'])
+
+    # and this think needs to be a function called stroke match or something
+    for offset in range(len_most-len_least+1):
+        loghi=minint
+        loglo=maxint
+        accmostlen=0.0
+        accleastlen=0.0
+        accscore=0.0
+        for scan in range(len_least):
+            score=correlate(most['sec'][offset+scan]['resampled'],least['sec'][scan]['resampled'])
+            accscore+=score
+
+            mostlen=most['sec'][offset+scan]['len']
+            accmostlen+=mostlen
+
+            leastlen=least['sec'][scan]['len']
+            accleastlen+=leastlen
+
+            lograt=numpy.log(float(mostlen)/float(leastlen))
+            
+            if lograt>loghi:
+                loghi=lograt
+
+            if lograt<loglo:
+                loglo=lograt
+
+        logscale=loghi-loglo
+        leastrat=accleastlen/leasttotallen
+        mostrat=accmostlen/mosttotallen
+
+        final_score=accscore/((leastrat*mostrat)**3)
+        
+        ret.append(final_score)
+    return ret
+
 def strokes_append(data):
     global last_data
     sparkline_filter(data)
@@ -457,51 +506,10 @@ def strokes_append(data):
     for letter in letters:
 #   for item in strokes:
         item=letter['item']
-        len_item=len(item['sec'])
-        len_data=len(data['sec'])
-
-        if len_item>len_data:
-            most,len_most=item,len_item
-            least,len_least=data,len_data
-        else:
-            most,len_most=data,len_data
-            least,len_least=item,len_item
-
-        mosttotallen=len(most['tot'])
-        leasttotallen=len(least['tot'])
-
-        # and this think needs to be a function called stroke match or something
-        for offset in range(len_most-len_least+1):
-            loghi=minint
-            loglo=maxint
-            accmostlen=0.0
-            accleastlen=0.0
-            accscore=0.0
-            for scan in range(len_least):
-                score=correlate(most['sec'][offset+scan]['resampled'],least['sec'][scan]['resampled'])
-                accscore+=score
-
-                mostlen=most['sec'][offset+scan]['len']
-                accmostlen+=mostlen
-
-                leastlen=least['sec'][scan]['len']
-                accleastlen+=leastlen
-
-                lograt=numpy.log(float(mostlen)/float(leastlen))
-                
-                if lograt>loghi:
-                    loghi=lograt
-
-                if lograt<loglo:
-                    loglo=lograt
-
-            logscale=loghi-loglo
-            leastrat=accleastlen/leasttotallen
-            mostrat=accmostlen/mosttotallen
-
-            final_score=accscore/((leastrat*mostrat)**3)
+        scores=stroke_difference(data,item)
             
-            ret.append((final_score,item,letter))
+        for score in scores:
+            ret.append((score,item,letter))
         
     ret.sort(score_cmp)
 
