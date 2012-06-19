@@ -512,10 +512,16 @@ def strokes_append(data):
 
     last_data=data
 
+    multipart_letter=None
     for stroke in strokes:
-        print data['bbox'],stroke['bbox']
         if bbox_overlap(data['bbox'],stroke['bbox']):
-            break
+            # now need to regenerate stroke and check that there is an intersection
+            multipart_letter=stroke['letter']
+
+    if multipart_letter:
+        print 'yes'
+    else:
+        print 'no'
         
     #   this ought not to be too hard
     #   need to see whether this is a stroke in a multi stroke letter
