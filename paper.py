@@ -146,13 +146,37 @@ def section_render(section,x,y,colour):
         off+=1
 
 def is_inside(outer,inner):
-    (outer_lt_x,outer_tl_y)=outer[0]
+    (outer_tl_x,outer_tl_y)=outer[0]
     (outer_br_x,outer_br_y)=outer[1]
 
-    (inner_lt_x,inner_tl_y)=inner[0]
+    (inner_tl_x,inner_tl_y)=inner[0]
     (inner_br_x,inner_br_y)=inner[1]
 
-    return outer_lt_x<inner_lt_x and outer_tl_y<inner_tl_y and outer_br_x>inner_br_x and outer_br_y>inner_br_y
+    return outer_tl_x<inner_tl_x and outer_tl_y<inner_tl_y and outer_br_x>inner_br_x and outer_br_y>inner_br_y
+
+def point_in_bbox(point,bbox):
+    (point_x,point_y)=point
+    (bbox_tl_x,bbox_tl_y)=bbox[0]
+    (bbox_br_x,bbox_br_y)=bbox[1]
+
+    if point_x<bbox_tl_x or point_x>bbox_br_x:
+        return False
+    elif point_y<bbox_tl_y or point_y>bbox_br_y:
+        return False
+    else:
+        return True
+
+def bbox_overlap(a,b):
+    (a_tl_x,a_tl_y)=a[0]
+    (a_br_x,a_br_y)=a[1]
+    
+    (b_tl_x,b_tl_y)=b[0]
+    (b_br_x,b_br_y)=b[1]
+
+    if a_tl_x>b_br_x or a_br_x<b_tl_x or a_tl_y>b_br_y or a_br_y<b_tl_y:
+        return False
+    else:
+        return True
 
 def find_letter(bbox): # becomes some sort of iterator perhaps
     for letter in letters:
@@ -488,6 +512,11 @@ def strokes_append(data):
 
     last_data=data
 
+    for stroke in strokes:
+        print data['bbox'],stroke['bbox']
+        if bbox_overlap(data['bbox'],stroke['bbox']):
+            break
+        
     #   this ought not to be too hard
     #   need to see whether this is a stroke in a multi stroke letter
     #       some sort of bbox detection
