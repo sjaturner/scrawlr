@@ -439,6 +439,21 @@ def strokes_append(data):
 
     last_data=data
 
+    #   this ought not to be too hard
+    #   need to see whether this is a stroke in a multi stroke letter
+    #       some sort of bbox detection
+    #       then derive points as sets and look for set intersection which defines line intersection
+    #   now we can see the multi stroke letters
+    #   look through the letters and find multi section letters with the same number of parts, at least for a start
+    #   for each of these 
+    #       try a multi section letter match 
+    #       score on 
+    #           best section matches
+    #           factor in the size ratios after best section matches
+    #       find the best letter matches
+
+    #       need to be careful of strike through
+
     for letter in letters:
 #   for item in strokes:
         item=letter['item']
@@ -455,6 +470,7 @@ def strokes_append(data):
         mosttotallen=len(most['tot'])
         leasttotallen=len(least['tot'])
 
+        # and this think needs to be a function called stroke match or something
         for offset in range(len_most-len_least+1):
             loghi=minint
             loglo=maxint
@@ -499,6 +515,8 @@ def strokes_append(data):
             new_letter['char']={}
             new_letter['char']['type']='guess'
             new_letter['char']['val']=letter['char']['val']
+
+    data['letter']=new_letter
 
     strokes.append(data)
     letters.append(new_letter)
