@@ -504,6 +504,17 @@ def stroke_difference(a,b):
         ret.append(final_score)
     return ret
 
+def stroke_to_points_set(stroke):
+    ret=[]
+    for index in range(len(stroke)):
+        if index==0:
+            x0,y0=stroke[index]['pos']
+        else:
+            x1,y1=stroke[index]['pos']
+            ret.extend(line_points(x0,y0,x1,y1))
+            x0,y0=x1,y1
+    return set(ret)
+
 def strokes_append(data):
     global last_data
     sparkline_filter(data)
@@ -514,10 +525,12 @@ def strokes_append(data):
 
     multipart_letter=None
     for stroke in strokes:
+        pprint.pprint(stroke['stroke'])
+        print stroke_to_points_set(stroke['stroke'])
         if bbox_overlap(data['bbox'],stroke['bbox']):
-            # now need to regenerate stroke and check that there is an intersection
             # might be good to memoize the generated point sets
-            multipart_letter=stroke['letter']
+            if stroke_to_points_set(data['stroke']) & stroke_to_points_set(stroke['stroke']):
+                multipart_letter=stroke['letter']
 
     if multipart_letter:
         print 'yes'
