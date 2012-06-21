@@ -180,10 +180,9 @@ def bbox_overlap(a,b):
 
 def find_letter(bbox): # becomes some sort of iterator perhaps
     for letter in letters:
-#       for item in strokes:
-        item=letter['item']
-        if is_inside(bbox,item['bbox']):
-            return letter
+        for item in letter['item']:
+            if is_inside(bbox,item['bbox']):
+                return letter
     return None
     
 def render_char(x,y,c,colour): # renders the characters near the letter
@@ -220,7 +219,7 @@ def render():
         stroke_render(item['stroke'],colour)
 
     for letter in letters:
-        item=letter['item']
+        item=letter['item'][0]
         if do_letters and 'bbox' in item and 'char' in letter:
             bbox=item['bbox']
             if letter['char']['type']=='told':
@@ -504,6 +503,9 @@ def stroke_difference(a,b):
         ret.append(final_score)
     return ret
 
+def multipart_letter_difference(a,b):
+    return [0]
+
 def stroke_to_points_set(stroke):
     ret=[]
     for index in range(len(stroke)):
@@ -534,13 +536,47 @@ def strokes_append(data):
 
     if multipart_letter:
         print 'yes'
+        multipart_letter['item'].append(data)
+        data['letter']=multipart_letter
+
+        multipart_letter_len=len(multipart_letter['item'])
+
+        print multipart_letter_len
+
+        for letter in letters:
+            if letter is multipart_letter:
+                continue
+            if len(letter['item'])!=multipart_letter_len:
+                continue
+            print 'here'
+            scores=multipart_letter_difference(multipart_letter,letter)
     else:
         print 'no'
+        for letter in letters:
+            item=letter['item'][0]
+            scores=stroke_difference(data,item)
+                
+            for score in scores:
+                ret.append((score,item,letter))
+            
+        ret.sort(score_cmp)
+
+        new_letter={}
+        new_letter['item']=[data]
+
+        for (score,item,letter) in ret:
+            if 'char' in letter and 'type' in letter['char'] and letter['char']['type']=='told':
+                print score,letter['char']['val']
+
+                new_letter['char']={}
+                new_letter['char']['type']='guess'
+                new_letter['char']['val']=letter['char']['val']
+
+        data['letter']=new_letter
+
+        letters.append(new_letter)
+    strokes.append(data)
         
-    #   this ought not to be too hard
-    #   need to see whether this is a stroke in a multi stroke letter
-    #       some sort of bbox detection
-    #       then derive points as sets and look for set intersection which defines line intersection
     #   now we can see the multi stroke letters
     #   look through the letters and find multi section letters with the same number of parts, at least for a start
     #   for each of these 
@@ -552,31 +588,6 @@ def strokes_append(data):
 
     #       need to be careful of strike through
 
-    for letter in letters:
-#   for item in strokes:
-        item=letter['item']
-        scores=stroke_difference(data,item)
-            
-        for score in scores:
-            ret.append((score,item,letter))
-        
-    ret.sort(score_cmp)
-
-    new_letter={}
-    new_letter['item']=data
-
-    for (score,item,letter) in ret:
-        if 'char' in letter and 'type' in letter['char'] and letter['char']['type']=='told':
-            print score,letter['char']['val']
-
-            new_letter['char']={}
-            new_letter['char']['type']='guess'
-            new_letter['char']['val']=letter['char']['val']
-
-    data['letter']=new_letter
-
-    strokes.append(data)
-    letters.append(new_letter)
 
 def main():
     global current_stroke
