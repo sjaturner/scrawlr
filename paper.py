@@ -511,14 +511,10 @@ def multipart_letter_difference(a,b):
         print 'array length mismatch in multipart_letter_difference'
         sys.exit()
     ret=[]
-    print type(a_item)
     for perm in itertools.permutations(a_item):
         score=0
-        print type(perm)
         for a_stroke,b_stroke in zip(b_item,perm):
-            print 'a_stroke'
             pprint.pprint(a_stroke)
-            print 'b_stroke'
             pprint.pprint(b_stroke)
             score+=sorted(stroke_difference(a_stroke,b_stroke))[0]
         ret.append(score)
@@ -547,20 +543,17 @@ def strokes_append(data):
     multipart_letter=None
     for stroke in strokes:
         pprint.pprint(stroke['stroke'])
-        print stroke_to_points_set(stroke['stroke'])
+#       print stroke_to_points_set(stroke['stroke'])
         if bbox_overlap(data['bbox'],stroke['bbox']):
             # might be good to memoize the generated point sets
             if stroke_to_points_set(data['stroke']) & stroke_to_points_set(stroke['stroke']):
                 multipart_letter=stroke['letter']
 
     if multipart_letter:
-        print 'yes'
         multipart_letter['item'].append(data)
         data['letter']=multipart_letter
 
         multipart_letter_len=len(multipart_letter['item'])
-
-        print multipart_letter_len
 
         for letter in letters:
             if letter is multipart_letter:
@@ -575,7 +568,6 @@ def strokes_append(data):
             if 'char' in letter and 'type' in letter['char'] and letter['char']['type']=='told':
                 print score,letter['char']['val']
     else:
-        print 'no'
         for letter in letters:
             item=letter['item'][0]
             scores=stroke_difference(data,item)
