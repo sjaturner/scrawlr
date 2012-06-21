@@ -40,6 +40,7 @@ import random
 import simplejson
 import pprint
 import numpy
+import itertools
 
 width=1200
 height=600
@@ -504,7 +505,25 @@ def stroke_difference(a,b):
     return ret
 
 def multipart_letter_difference(a,b):
-    return [0]
+    a_item=a['item']
+    b_item=b['item']
+    if len(a_item)!=len(b_item):
+        print 'array length mismatch in multipart_letter_difference'
+        sys.exit()
+    ret=[]
+    print type(a_item)
+    for perm in itertools.permutations(a_item):
+        score=0
+        print type(perm)
+        for a_stroke,b_stroke in zip(b_item,perm):
+            print 'a_stroke'
+            pprint.pprint(a_stroke)
+            print 'b_stroke'
+            pprint.pprint(b_stroke)
+            score+=sorted(stroke_difference(a_stroke,b_stroke))[0]
+        ret.append(score)
+    
+    return ret
 
 def stroke_to_points_set(stroke):
     ret=[]
@@ -548,17 +567,20 @@ def strokes_append(data):
                 continue
             if len(letter['item'])!=multipart_letter_len:
                 continue
-            print 'here'
             scores=multipart_letter_difference(multipart_letter,letter)
+            for score in scores:
+                ret.append((score,0,letter))
+        ret.sort(score_cmp)
+        for (score,item,letter) in ret:
+            if 'char' in letter and 'type' in letter['char'] and letter['char']['type']=='told':
+                print score,letter['char']['val']
     else:
         print 'no'
         for letter in letters:
             item=letter['item'][0]
             scores=stroke_difference(data,item)
-                
             for score in scores:
                 ret.append((score,item,letter))
-            
         ret.sort(score_cmp)
 
         new_letter={}
