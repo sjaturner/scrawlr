@@ -500,7 +500,7 @@ def stroke_difference(a,b):
         leastrat=accleastlen/(1+leasttotallen)
         mostrat=accmostlen/(1+mosttotallen)
 
-        final_score=accscore/(1+(leastrat*mostrat)**3)
+        final_score=accscore/(1+(leastrat*mostrat)**4)
         
         ret.append(final_score)
     return ret
@@ -529,7 +529,8 @@ def stroke_to_points_set(stroke):
             x0,y0=stroke[index]['pos']
         else:
             x1,y1=stroke[index]['pos']
-            ret.extend(line_points(x0,y0,x1,y1))
+            for xoff,yoff in ((+1,0),(-1,0),(0,+1),(0,-1)): # fatten
+                ret.extend(line_points(x0+xoff,y0+yoff,x1+xoff,y1+yoff))
             x0,y0=x1,y1
     return set(ret)
 
@@ -567,7 +568,11 @@ def strokes_append(data):
         ret.sort(score_cmp)
         for (score,item,letter) in ret:
             if 'char' in letter and 'type' in letter['char'] and letter['char']['type']=='told':
-                print score,letter['char']['val']
+                print 'm',score,letter['char']['val']
+
+                multipart_letter['char']={}
+                multipart_letter['char']['type']='guess'
+                multipart_letter['char']['val']=letter['char']['val']
     else:
         for letter in letters:
             item=letter['item'][0]
@@ -580,8 +585,11 @@ def strokes_append(data):
         new_letter['item']=[data]
 
         for (score,item,letter) in ret:
+            if len(letter['item'])!=1:
+                continue
+
             if 'char' in letter and 'type' in letter['char'] and letter['char']['type']=='told':
-                print score,letter['char']['val']
+                print 'u',score,letter['char']['val']
 
                 new_letter['char']={}
                 new_letter['char']['type']='guess'
