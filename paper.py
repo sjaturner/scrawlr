@@ -363,8 +363,8 @@ def resample(a,n):
     return tuple(ret)
 
 def sparkline_filter(data):
-    ret={}
-    ret['stroke']=[]
+#   ret={}
+#   ret['stroke']=[]
 
     graph=distangle(data['stroke'])
     points={}
@@ -405,6 +405,7 @@ def sparkline_filter(data):
 
     gap=5
     
+    ret=[]
     if len(uniq_points)>2*gap:
         for i in range(gap):
             uniq_points[i].append(0)
@@ -496,10 +497,10 @@ def stroke_difference(a,b):
                 loglo=lograt
 
         logscale=loghi-loglo
-        leastrat=accleastlen/leasttotallen
-        mostrat=accmostlen/mosttotallen
+        leastrat=accleastlen/(1+leasttotallen)
+        mostrat=accmostlen/(1+mosttotallen)
 
-        final_score=accscore/((leastrat*mostrat)**3)
+        final_score=accscore/(1+(leastrat*mostrat)**3)
         
         ret.append(final_score)
     return ret
@@ -514,8 +515,8 @@ def multipart_letter_difference(a,b):
     for perm in itertools.permutations(a_item):
         score=0
         for a_stroke,b_stroke in zip(b_item,perm):
-            pprint.pprint(a_stroke)
-            pprint.pprint(b_stroke)
+#           pprint.pprint(a_stroke)
+#           pprint.pprint(b_stroke)
             score+=sorted(stroke_difference(a_stroke,b_stroke))[0]
         ret.append(score)
     
@@ -542,7 +543,7 @@ def strokes_append(data):
 
     multipart_letter=None
     for stroke in strokes:
-        pprint.pprint(stroke['stroke'])
+#       pprint.pprint(stroke['stroke'])
 #       print stroke_to_points_set(stroke['stroke'])
         if bbox_overlap(data['bbox'],stroke['bbox']):
             # might be good to memoize the generated point sets
