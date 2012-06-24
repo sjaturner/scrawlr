@@ -42,8 +42,8 @@ import pprint
 import numpy
 import itertools
 
-width=1200
-height=600
+width=1024
+height=768
 ink=(0,0,0)
 paper=(255, 255, 255)
 red=(255, 0, 0)
@@ -506,7 +506,7 @@ def stroke_difference(a,b):
         if leastrat==0 or mostrat==0:
             final_score=maxint
         else:
-            final_score=accscore/((leastrat*mostrat)**3)
+            final_score=(1+logscale)*accscore/((leastrat*mostrat)**3)
         
         ret.append(final_score)
     return ret
