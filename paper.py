@@ -403,7 +403,7 @@ def sparkline_filter(data):
         else:
             uniq_points.append([x,last])
 
-    gap=5
+    gap=3
     
     ret=[]
     if len(uniq_points)>2*gap:
@@ -500,7 +500,13 @@ def stroke_difference(a,b):
         leastrat=accleastlen/(1+leasttotallen)
         mostrat=accmostlen/(1+mosttotallen)
 
-        final_score=accscore/(1+(leastrat*mostrat)**4)
+        # high final score is bad
+        # high accscore is bad
+
+        if leastrat==0 or mostrat==0:
+            final_score=maxint
+        else:
+            final_score=accscore/((leastrat*mostrat)**3)
         
         ret.append(final_score)
     return ret
