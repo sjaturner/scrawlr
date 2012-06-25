@@ -1,3 +1,5 @@
+# copyright 2012, simon turner, sjaturner@googlemail.com all rights reserved
+# for the moment, at least
 #   in this order
 #       ensure that the angle and points representations overlay correctly with distance along stroke equivalence (done)
 #       be able to slice stuff up using the median filter corner detection trick (done)
@@ -31,6 +33,17 @@
 #   think that selected item has to go though
 #   require a table of connected strokes
 #   entries to this in record append, at the end of this in fact
+
+#   next, a mode for quickly confirming guess letters
+#       select a letter 
+#       told it a key
+#       box moves on to next sequential guess or unknown letter
+#       need to be able to give word names to things
+#           box
+#           triangle
+#       delimiters might be colon and semicolon
+#           colon start a name and semicolon ends it
+#       escape exits from this naming mode
 
 import os
 import sys
