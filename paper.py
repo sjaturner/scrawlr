@@ -1,5 +1,107 @@
 # copyright 2012, simon turner, sjaturner@googlemail.com all rights reserved
 # for the moment, at least
+#
+#   Instructions
+#   ============
+#   
+#   This rather nasty python module is able to identify hand written text. 
+#   I'm using a Wacom pad for writing but a mouse will do. 
+#
+#   The program is a step towards the web hosted "single large canvas on 
+#   which you write everything". This application will be written in 
+#   Javascript and will save data to and load from a host using JASON. 
+#   I think that this will play well with the inevitable stylus-based pads 
+#   which are always just around the corner.
+#
+#   The python program is called paper.py. It implements a fairly large canvas. 
+#   Sessions can be saved and loaded to and from files nominated on the command 
+#   line. The following invocations are permitted.
+#   
+#       1. python paper.py
+#       2. python paper.py null output
+#       3. python paper.py input output
+#       3. python paper.py input 
+#
+#   Case [1] starts a new session with no provision to save the canvas. Case [2] 
+#   starts a new blank canvas and will save the result to output - for reasons 
+#   which I've not investigated output has to be a file already (touch the file).
+#   Case [3] takes an existing canvas. The changes made during the session will 
+#   be saved to the named output file. Finally Case [4] takes an existing canvas 
+#   with no provision to save.
+#
+#   The code knows nothing about written letters and their relationship to 
+#   characters. It needs to be taught. 
+#   
+#   Suggested approach
+#   ==================
+
+#   Start a new session but capture the output (Case [2]). 
+#   Use the pointing device on your computer to write the letters 'a' through 'z'.
+#   If you are using a mouse then the left button is pen down. Next, use the right 
+#   button to draw a red box around each letter in turn and hit the key which 
+#   matches that letter. You'll notice that when the right mouse button is 
+#   pressed then the letters associated with each character are displayed at 
+#   the top left corner of the letters bounding box. Red letters are ones 
+#   which the program has been told about.
+#
+#   Now use the mouse to copy one of the letters which you've already entered.
+#   The program will try to find a close match. Next time you press the right 
+#   mouse button you will see the closest match, or guess, in green - again at 
+#   the top left bounding box position.
+#
+#   At present you need to confirm the guess or inform the program of the actual 
+#   letter. This is another right hand button box exercise. In theory, the more 
+#   letters you have identified, the better the subsequent matches.
+#
+#   You may scroll the canvas around by grabbing it with the middle mouse 
+#   button.
+#   
+#   There is support for multi-part letters too, think 't', etc.
+#
+#   Method for identifying letters
+#   ==============================
+#
+#   In brief: Each stroke is converted into a bearing/distance representation.
+#   Rapid changes in bearing (corresponding to points where the pen direction 
+#   alters quickly, the bottom of a 'v' for instance) are identified and the 
+#   strokes are spit into sections based on this. For each section the bearing/
+#   distance representation is normalised to a fixed length. These fixed length 
+#   sequences can be correlated with sections from other strokes and match value 
+#   can be associated with any pair of sections. I've arrived at a suitable 
+#   heuristic after some experimentation. Sequences of sections are matched 
+#   so that letter strokes may be compared. This process also takes account 
+#   of the relative lengths of the sections and the proportion of the stroke 
+#   over which the match takes place. There is considerable room for 
+#   improvement here. The experimental approach is time consuming - a better 
+#   method would be to run systematic tests on a large corpus of letters.
+#   
+#   Multipart characters are compared in terms of their component strokes. 
+#   A permutation based approach is used to achieve the best match.
+#
+#   Improvements
+#   ============
+#   
+#   Usability will be improved by a method for iterating rapidly across 
+#   guessed or unidentified letters. After boxing a single character and 
+#   identifying it the box will moved to the next uncertain character.
+#
+#   This program slows down after a while. Optimisations are required. 
+#   Perhaps one could match against the best set of matching characters first?
+#   The best performing matchers are fairly easily identified.
+#
+#   There is no concept of word, lines or spaces just yet. 
+#
+#   I'd like some sort of command interface which projects into the 
+#   canvas. What could be more natural than a feature which allows 
+#   someone to write ":!grep simon" and have all of the lines containing 
+#   "simon" displayed below. All text output from commands could be 
+#   rendered in your own typeface. Some sort of access to the underlying 
+#   code would be nice, as would the ability to extend the interface - 
+#   all in the canvas. A good query language would help.
+#
+#   Oh, and crashing less would be nice too.
+#
+# --- notes
 #   in this order
 #       ensure that the angle and points representations overlay correctly with distance along stroke equivalence (done)
 #       be able to slice stuff up using the median filter corner detection trick (done)
