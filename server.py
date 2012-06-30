@@ -1,11 +1,13 @@
 from webob import Request, Response
 from pprint import pprint
 
+page=open('page.html').read()
+
 def app(environ, start_response):
     req = Request(environ)
     pprint(req)
     if req.path_info=='/' and req.method=='GET':
-        resp = Response("Hello World!", "200 OK", [ ("Content-type", "text/plain"), ])
+        resp = Response(page, "200 OK", [ ("Content-type", "text/html"), ])
         return resp(environ, start_response)
     else:
         resp = Response()
