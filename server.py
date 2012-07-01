@@ -1,13 +1,17 @@
 from webob import Request, Response
 from pprint import pprint
 
-page=open('page.html').read()
 
 def app(environ, start_response):
     req = Request(environ)
     pprint(req)
     if req.path_info=='/' and req.method=='GET':
+        page=open('page.html').read()
         resp = Response(page, "200 OK", [ ("Content-type", "text/html"), ])
+        return resp(environ, start_response)
+    if req.path_info=='/page.js' and req.method=='GET':
+        page=open('page.js').read()
+        resp = Response(page, "200 OK", [ ("Content-type", "text/javascript"), ])
         return resp(environ, start_response)
     else:
         resp = Response()
