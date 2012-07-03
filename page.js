@@ -59,7 +59,7 @@ $(document).ready(function(){
 
    function pen(){
       var tool=this; 
-      this.started=false;
+      tool.started=false;
 
       tool.mousedown=function(ev){
          ctx.beginPath();
