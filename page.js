@@ -4,7 +4,6 @@ $(document).ready(function(){
    var tool;
    var width=0;
    var height=0;
-   var update=0;
 
    var orgx=0;
    var orgy=0;
