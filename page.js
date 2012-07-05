@@ -81,21 +81,31 @@ $(document).ready(function(){
          that.down['time']=date.getTime();
          that.down['x']=ev._x;
          that.down['y']=ev._y;
+         that.down['drag']=ev.which==2;
       }
 
       that.mousemove=function(ev){
+         var first=0;
+
          if('down' in that){
             if(that['down'].time){
-               var date=new Date();
-               var time=date.getTime();
-               var dwell=time-that['down'].time;
+               first=1;
 
-               if(dwell>=dwell_ms_for_move){
+               if(that['down'].drag){
                   drag=1;
                }
                else{
-                  // need to record start time for stroke
-                  draw=1;
+                  var date=new Date();
+                  var time=date.getTime();
+                  var dwell=time-that['down'].time;
+
+                  if(dwell>=dwell_ms_for_move){
+                     drag=1;
+                  }
+                  else{
+                     // need to record start time for stroke
+                     draw=1;
+                  }
                }
 
                that['down'].time=0;
