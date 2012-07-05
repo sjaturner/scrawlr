@@ -13,6 +13,10 @@ def app(environ, start_response):
         page=open('page.js').read()
         resp = Response(page, "200 OK", [ ("Content-type", "text/javascript"), ])
         return resp(environ, start_response)
+    if req.path_info=='/jquery.min.js' and req.method=='GET':
+        page=open('jquery.min.js').read()
+        resp = Response(page, "200 OK", [ ("Content-type", "text/javascript"), ])
+        return resp(environ, start_response)
     else:
         resp = Response()
         return resp(environ, start_response)
