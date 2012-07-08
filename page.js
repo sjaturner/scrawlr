@@ -74,9 +74,6 @@ $(document).ready(function(){
       that.mousedown=function(ev){
          var date=new Date();
 
-         ctx.beginPath();
-         ctx.moveTo(ev._x, ev._y);
-
          that.down={}
          that.down['time']=date.getTime();
          that.down['x']=ev._x;
@@ -113,6 +110,10 @@ $(document).ready(function(){
          }
 
          if(draw){
+            if(first){
+               ctx.beginPath();
+               ctx.moveTo(ev._x, ev._y);
+            }
             ctx.lineTo(ev._x, ev._y);
             ctx.strokeStyle = "#000000";
             ctx.stroke();
