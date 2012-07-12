@@ -16,15 +16,35 @@ $(document).ready(function(){
 
    var orgx=0;
    var orgy=0;
+   var current_stroke=null;
    var strokes=[]
-   var stroke=null;
+   var dorg=null;
 
    function stroke_render(stroke,colour){
+      if(stroke.length<2){
+         return;
+      }
+      ctx.beginPath();
+      for(var i=0;i<stroke.length;++i){
+         var x=stroke[i][0]-orgx;
+         var y=stroke[i][1]-orgy;
+
+         if(i){
+            ctx.moveTo(x,y);
+         }
+         else{
+            ctx.lineTo(x,y);
+         }
+      }
+      ctx.strokeStyle = "#000000";
+      ctx.stroke();
    }
 
    function render(){
       var linegap=40;
       var y=0;
+
+      console.log(orgx,orgy);
 
       for(y=0;y<height;y+=linegap)
       {
@@ -35,6 +55,14 @@ $(document).ready(function(){
          ctx.lineTo(width,oy);
          ctx.strokeStyle = "#000001";
          ctx.stroke();
+      }
+
+      for(var i=0;i<strokes.length;++i){
+         stroke_render(strokes[i],0);
+      }
+
+      if(current_stroke){
+         stroke_render(current_stroke,0);
       }
    }
 
@@ -94,6 +122,7 @@ $(document).ready(function(){
                first=1;
 
                if(that['down'].drag){
+                  that.dorg=[ev._x, ev._y];
                   drag=1;
                }
                else{
@@ -102,6 +131,7 @@ $(document).ready(function(){
                   var dwell=time-that['down'].time;
 
                   if(dwell>=dwell_ms_for_move){
+                     that.dorg=[ev._x, ev._y];
                      drag=1;
                   }
                   else{
@@ -118,19 +148,27 @@ $(document).ready(function(){
             if(first){
                ctx.beginPath();
                ctx.moveTo(ev._x, ev._y);
-               that.stroke=[]
+               that.current_stroke=[]
                first=0;
             }
             else{
                ctx.lineTo(ev._x, ev._y);
             }
-            that.stroke.push([ev._x, ev._y])
+            that.current_stroke.push([ev._x, ev._y])
 
             ctx.strokeStyle = "#000000";
             ctx.stroke();
          }
 
          if(drag){
+            var x=that.dorg[0]-ev._x;
+            var y=that.dorg[1]-ev._y;
+
+            that.orgx+=x;
+            that.orgy+=y;
+
+            that.dorg=[ev._x, ev._y];
+            render();
          }
       }
 
@@ -142,22 +180,29 @@ $(document).ready(function(){
             }
 
             if(drag){ // finish drag 
+               var x=that.dorg[0]-ev._x;
+               var y=that.dorg[1]-ev._y;
 
+               that.orgx+=x;
+               that.orgy+=y;
+
+               that.dorg=[ev._x, ev._y];
+               render();
                drag=0;
+               that.dorg=null;
             }
             
             if(draw){ // finish draw
                console.log('here',strokes);
-               strokes.push(that.stroke);
+               strokes.push(that.current_stroke);
                console.log('end');
 
-               that.stroke=null;
+               that.current_stroke=null;
                draw=0;
             }
 
             delete that['down'];
          }
-         
       }
    }
 
