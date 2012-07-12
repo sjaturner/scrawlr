@@ -1,6 +1,6 @@
 // notes
-//    get a local copy of jquery you muppet
-//    nice to have phantom js to built test code
+//    get a local copy of jquery you muppet (done)
+//    nice to have phantom js to built test code (done)
 //       can probably test harness some of this stuff
 //    do simplistic saving of lines and strokes
 //    then render to support canvas moves
@@ -16,6 +16,11 @@ $(document).ready(function(){
 
    var orgx=0;
    var orgy=0;
+   var strokes=[]
+   var stroke=null;
+
+   function stroke_render(stroke,colour){
+   }
 
    function render(){
       var linegap=40;
@@ -53,7 +58,7 @@ $(document).ready(function(){
 
       ctx.lineWidth=1;
 
-      tool=new pen();
+      tool=new pen(strokes);
 
       canvas.addEventListener('mousedown', ev_canvas, false);
       canvas.addEventListener('mousemove', ev_canvas, false);
@@ -65,7 +70,7 @@ $(document).ready(function(){
       render();
    }
 
-   function pen(){
+   function pen(strokes){
       var that=this; 
       var dwell_ms_for_move=500;
       var drag=0;
@@ -113,8 +118,14 @@ $(document).ready(function(){
             if(first){
                ctx.beginPath();
                ctx.moveTo(ev._x, ev._y);
+               that.stroke=[]
+               first=0;
             }
-            ctx.lineTo(ev._x, ev._y);
+            else{
+               ctx.lineTo(ev._x, ev._y);
+            }
+            that.stroke.push([ev._x, ev._y])
+
             ctx.strokeStyle = "#000000";
             ctx.stroke();
          }
@@ -136,7 +147,11 @@ $(document).ready(function(){
             }
             
             if(draw){ // finish draw
+               console.log('here',strokes);
+               strokes.push(that.stroke);
+               console.log('end');
 
+               that.stroke=null;
                draw=0;
             }
 
