@@ -147,8 +147,9 @@
 #           colon start a name and semicolon ends it
 #       escape exits from this naming mode
 
-import os
 import sys
+sys.dont_write_bytecode = True
+import os
 import time
 import pygame
 import random
