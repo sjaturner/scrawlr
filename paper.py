@@ -156,13 +156,15 @@ import simplejson
 import pprint
 import numpy
 import itertools
+import line
 
 width=1024
 height=768
-ink=(0,0,0)
-paper=(255, 255, 255)
-red=(255, 0, 0)
-line=(255-0x40, 255-0x40, 255-0x40)
+ink_colour=(0,0,0)
+paper_colour=(255, 255, 255)
+red_colour=(255, 0, 0)
+green_colour=(0,255,0)
+line_colour=(255-0x40, 255-0x40, 255-0x40)
 maxint=sys.maxint
 minint=-sys.maxint-1
 
@@ -183,47 +185,6 @@ orgy=0
 
 start_time=time.time()
 
-def line_points(x0, y0, x1, y1):
-   sx=x0
-   sy=y0
-   a=[]
-   steep = abs(y1 - y0) > abs(x1 - x0)
-   if steep:
-      x0, y0 = y0, x0  
-      x1, y1 = y1, x1
-
-   if x0 > x1:
-      x0, x1 = x1, x0
-      y0, y1 = y1, y0
-   
-   if y0 < y1: 
-      ystep = 1
-   else:
-      ystep = -1
-
-   deltax = x1 - x0
-   deltay = abs(y1 - y0)
-   error = -deltax / 2
-   y = y0
-
-   for x in range(x0, x1 + 1): # We add 1 to x1 so that the range includes x1
-      if steep:
-         a.append((y, x))
-      else:
-         a.append((x, y))
-            
-      error = error + deltay
-      if error > 0:
-         y = y + ystep
-         error = error - deltax
-   
-   (x,y)=a[0]
-   if x==sx and y==sy:
-      pass
-   else:
-      a.reverse()
-
-   return a
 
 def med(a):
     return sorted(a)[len(a)/2]
@@ -253,7 +214,7 @@ def stroke_render(s,colour):
 last_data=None # just used to show the normalised angle data for the most recent stroke
 
 def section_render(section,x,y,colour):
-    pygame.draw.rect(screen,ink,((x,y),(32,int(4*numpy.pi))),1)
+    pygame.draw.rect(screen,ink_colour,((x,y),(32,int(4*numpy.pi))),1)
     off=0
     for val in section:
         lx=int(x+off*2)
@@ -308,14 +269,14 @@ def render_char(x,y,c,colour): # renders the characters near the letter
     textrect = text.get_rect()
     textrect.centerx=x
     textrect.centery=y
-    pygame.draw.rect(screen,paper,textrect)
+    pygame.draw.rect(screen,paper_colour,textrect)
     screen.blit(text,textrect)
 
 def render():
     global font
     linegap=40
     colgap=width
-    screen.fill(paper)
+    screen.fill(paper_colour)
 
     if last_data:
         ix=0
@@ -325,13 +286,13 @@ def render():
 
     for y in range(0,height,linegap):
         oy=y-orgy%linegap
-        pygame.draw.lines(screen,line,False,((0,oy),(width,oy)),1)
+        pygame.draw.lines(screen,line_colour,False,((0,oy),(width,oy)),1)
 
     for item in strokes:
         if 'colour' in item:
             colour=item['colour']
         else:
-            colour=ink
+            colour=ink_colour
         stroke_render(item['stroke'],colour)
 
     for letter in letters:
@@ -339,15 +300,15 @@ def render():
         if do_letters and 'bbox' in item and 'char' in letter:
             bbox=item['bbox']
             if letter['char']['type']=='told':
-                col=(255,0,0)
+                col=red_colour
             elif letter['char']['type']=='guess':
-                col=(0,255,0)
+                col=green_colour
             else:
-                col=ink
+                col=ink_colour
             render_char(bbox[0][0],bbox[0][1],letter['char']['val'],col)
 
     if current_stroke:
-        stroke_render(current_stroke,ink)
+        stroke_render(current_stroke,ink_colour)
 
     if sel and sel_w and sel_h:
         pygame.draw.rect(screen,(255,0,0),((sel[0],sel[1]),(sel_w,sel_h)),1)
@@ -496,7 +457,7 @@ def sparkline_filter(data):
         y0=int(scale*graph[i+0][1])
         x1=int(graph[i+1][0])
         y1=int(scale*graph[i+1][1])
-        for (x,y) in line_points(x0,y0,x1,y1):
+        for (x,y) in line.points(x0,y0,x1,y1):
             ix=int(x)
             if ix>maxx:
                 maxx=ix
@@ -651,7 +612,7 @@ def stroke_to_points_set(stroke):
         else:
             x1,y1=stroke[index]['pos']
             for xoff,yoff in ((+1,0),(-1,0),(0,+1),(0,-1)): # fatten
-                ret.extend(line_points(x0+xoff,y0+yoff,x1+xoff,y1+yoff))
+                ret.extend(line.points(x0+xoff,y0+yoff,x1+xoff,y1+yoff))
             x0,y0=x1,y1
     return set(ret)
 
@@ -808,7 +769,7 @@ def main():
             elif down:
                 refresh=0
                 current_stroke_append(e.pos)
-                stroke_render(current_stroke,ink)
+                stroke_render(current_stroke,ink_colour)
                 pygame.display.update()
                 
         if refresh:
