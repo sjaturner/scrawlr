@@ -113,27 +113,27 @@ $(document).ready(function(){
             var date=new Date();
 
             that.down={}
-            that.down['time']=date.getTime();
-            that.down['x']=ev._x;
-            that.down['y']=ev._y;
-            that.down['drag']=ev.which==2;
+            that.down.time=date.getTime();
+            that.down.x=ev._x;
+            that.down.y=ev._y;
+            that.down.drag=ev.which==2;
          }
 
          that.mousemove=function(ev){
             var first=0;
 
             if('down' in that){
-               if(that['down'].time){
+               if(that.down.time){
                   first=1;
 
-                  if(that['down'].drag){
+                  if(that.down.drag){
                      that.dorg=[ev._x, ev._y];
                      drag=1;
                   }
                   else{
                      var date=new Date();
                      var time=date.getTime();
-                     var dwell=time-that['down'].time;
+                     var dwell=time-that.down.time;
 
                      if(dwell>=dwell_ms_for_move){
                         that.dorg=[ev._x, ev._y];
@@ -145,7 +145,7 @@ $(document).ready(function(){
                      }
                   }
 
-                  that['down'].time=0;
+                  that.down.time=0;
                }
             }
 
@@ -181,7 +181,7 @@ $(document).ready(function(){
             if('down' in that){
                that.mousemove(ev);
 
-               if(that['down']){ // then there has been no move, do select action instead
+               if(that.down){ // then there has been no move, do select action instead
                }
 
                if(drag){ // finish drag 
@@ -208,7 +208,7 @@ $(document).ready(function(){
                   draw=0;
                }
 
-               delete that['down'];
+               delete that.down;
             }
          }
       }
