@@ -39,3 +39,6 @@ def points(x0, y0, x1, y1):
       a.reverse()
 
    return a
+
+if __name__ == "__main__":
+    print points(10,10,20,20)
