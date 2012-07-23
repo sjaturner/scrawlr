@@ -83,10 +83,41 @@ function points(x0,y0,x1,y1){
    return a;
 }
 
-var a=points(10,10,20,20);
-var i=0;
+function line_print(x0,y0,x1,y1){
+   var a=points(x0,y0,x1,y1);
+   var i=0;
 
-for(i=0;i<a.length;++i){
-   console.log(a[i]);
+   for(i=0;i<a.length;++i){
+      console.log(a[i]);
+   }
 }
+
+    line_print(+10,+10,+20,+20);
+    line_print(-10,+10,+20,+20);
+    line_print(-10,-10,+20,+20);
+    line_print(-10,-10,-20,+20);
+    line_print(-10,-10,-20,-20);
+    line_print(1,7,7,-1);
+    line_print(5,7,-2,2);
+    line_print(0,-4,9,0);
+    line_print(-1,9,2,-1);
+    line_print(6,4,-8,6);
+    line_print(8,-5,0,0);
+    line_print(-6,-2,-4,-6);
+    line_print(-9,-1,0,0);
+    line_print(-9,0,0,4);
+    line_print(-1,-8,0,4);
+    line_print(-9,-7,9,4);
+    line_print(-4,9,-1,3);
+    line_print(-6,-6,9,1);
+    line_print(-1,1,8,-5);
+    line_print(6,8,8,-6);
+    line_print(-3,-5,5,4);
+    line_print(-3,-7,-1,4);
+    line_print(7,7,-1,3);
+    line_print(-9,-7,5,0);
+    line_print(-4,2,-8,-6);
+    line_print(0,0,0,0);
+    line_print(1,1,1,1);
+
 phantom.exit();
