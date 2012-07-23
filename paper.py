@@ -232,18 +232,6 @@ def is_inside(outer,inner):
 
     return outer_tl_x<inner_tl_x and outer_tl_y<inner_tl_y and outer_br_x>inner_br_x and outer_br_y>inner_br_y
 
-def point_in_bbox(point,bbox):
-    (point_x,point_y)=point
-    (bbox_tl_x,bbox_tl_y)=bbox[0]
-    (bbox_br_x,bbox_br_y)=bbox[1]
-
-    if point_x<bbox_tl_x or point_x>bbox_br_x:
-        return False
-    elif point_y<bbox_tl_y or point_y>bbox_br_y:
-        return False
-    else:
-        return True
-
 def bbox_overlap(a,b):
     (a_tl_x,a_tl_y)=a[0]
     (a_br_x,a_br_y)=a[1]
@@ -256,6 +244,23 @@ def bbox_overlap(a,b):
     else:
         return True
 
+def bbox(s):
+    minx=maxint
+    miny=maxint
+    maxx=minint
+    maxy=minint
+    for item in s:
+        x,y=item['pos']
+        if x<minx:
+            minx=x
+        if y<miny:
+            miny=y
+        if x>maxx:
+            maxx=x
+        if y>maxy:
+            maxy=y
+    return ((minx,miny),(maxx,maxy))
+    
 def find_letter(bbox): # becomes some sort of iterator perhaps
     for letter in letters:
         for item in letter['item']:
@@ -324,23 +329,6 @@ def current_stroke_append(pos):
     event['pos']=(x,y)
     current_stroke.append(event)
 
-def bbox(s):
-    minx=maxint
-    miny=maxint
-    maxx=minint
-    maxy=minint
-    for item in s:
-        x,y=item['pos']
-        if x<minx:
-            minx=x
-        if y<miny:
-            miny=y
-        if x>maxx:
-            maxx=x
-        if y>maxy:
-            maxy=y
-    return ((minx,miny),(maxx,maxy))
-    
 def distangle(stroke):
     first=1
     fangle=1
