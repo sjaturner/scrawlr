@@ -5,7 +5,6 @@ function intcmp(a,b){
 function middle(a){
    var sorted=a.sort(intcmp);
 
-   console.log(a)
    return sorted[a.length>>1];
 }
 
@@ -48,14 +47,14 @@ function bucket(samples,gap,fun){
    }
 
    extended=l.concat(samples,r);
-   
+
    for(i=0;i<samples.length;++i){
       ret.push(fun(extended.slice(i,i+gap)))
    }
 
-   console.log(ret)
+   return ret;
 }
 
-bucket([1,2,3,4,5,6],5,middle);
+console.log(bucket([1,2,9,4,5,6],5,middle));
 
 phantom.exit();
