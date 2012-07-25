@@ -1,5 +1,3 @@
-"use strict";
-
 function points(x0,y0,x1,y1){
    var sx=0;
    var sy=0;
@@ -21,7 +19,7 @@ function points(x0,y0,x1,y1){
    sx=x0;
    sy=y0;
 
-   steep=Math.abs(y1 - y0)>Math.abs(x1 - x0)
+   steep=Math.abs(y1 - y0)>Math.abs(x1 - x0);
 
    if(steep){
       tv=x0;

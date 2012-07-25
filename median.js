@@ -39,17 +39,17 @@ function bucket(samples,gap,fun){
    half_gap=(gap/2)|0;
 
    for(i=0;i<half_gap;++i){
-      l.push(samples[0])
+      l.push(samples[0]);
    }
 
    for(i=0;i<half_gap;++i){
-      r.push(samples[samples.length-1])
+      r.push(samples[samples.length-1]);
    }
 
    extended=l.concat(samples,r);
 
    for(i=0;i<samples.length;++i){
-      ret.push(fun(extended.slice(i,i+gap)))
+      ret.push(fun(extended.slice(i,i+gap)));
    }
 
    return ret;

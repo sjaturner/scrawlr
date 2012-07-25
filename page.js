@@ -20,7 +20,7 @@ $(document).ready(function(){
       this.orgy=0;
       var current_stroke=null;
       var dorg=null;
-      this.strokes=[]
+      this.strokes=[];
 
       function stroke_render(stroke,colour){
          if(stroke.length<2){
@@ -99,7 +99,7 @@ $(document).ready(function(){
          height=canvas.height;
 
          render();
-      }
+      };
 
       function pen(paper){
          var that=this; 
@@ -112,12 +112,12 @@ $(document).ready(function(){
          that.mousedown=function(ev){
             var date=new Date();
 
-            that.down={}
+            that.down={};
             that.down.time=date.getTime();
             that.down.x=ev._x;
             that.down.y=ev._y;
             that.down.drag=ev.which==2;
-         }
+         };
 
          that.mousemove=function(ev){
             var first=0;
@@ -153,13 +153,13 @@ $(document).ready(function(){
                if(first){
                   ctx.beginPath();
                   ctx.moveTo(ev._x, ev._y);
-                  that.current_stroke=[]
+                  that.current_stroke=[];
                   first=0;
                }
                else{
                   ctx.lineTo(ev._x, ev._y);
                }
-               that.current_stroke.push([ev._x+paper.orgx, ev._y+paper.orgy])
+               that.current_stroke.push([ev._x+paper.orgx, ev._y+paper.orgy]);
 
                ctx.strokeStyle = "#000000";
                ctx.stroke();
@@ -175,14 +175,11 @@ $(document).ready(function(){
                that.dorg=[ev._x, ev._y];
                render();
             }
-         }
+         };
 
          that.mouseup=function(ev){
             if('down' in that){
                that.mousemove(ev);
-
-               if(that.down){ // then there has been no move, do select action instead
-               }
 
                if(drag){ // finish drag 
                   var x=that.dorg[0]-ev._x;
@@ -210,7 +207,7 @@ $(document).ready(function(){
 
                delete that.down;
             }
-         }
+         };
       }
 
       function ev_canvas(ev){
