@@ -159,6 +159,7 @@ import numpy
 import itertools
 import line
 import median
+import bounding_box
 
 width=1024
 height=768
@@ -211,48 +212,10 @@ def section_render(section,x,y,colour):
         pygame.draw.circle(screen,colour,(lx,ly),1,0)
         off+=1
 
-def is_inside(outer,inner):
-    (outer_tl_x,outer_tl_y)=outer[0]
-    (outer_br_x,outer_br_y)=outer[1]
-
-    (inner_tl_x,inner_tl_y)=inner[0]
-    (inner_br_x,inner_br_y)=inner[1]
-
-    return outer_tl_x<inner_tl_x and outer_tl_y<inner_tl_y and outer_br_x>inner_br_x and outer_br_y>inner_br_y
-
-def bbox_overlap(a,b):
-    (a_tl_x,a_tl_y)=a[0]
-    (a_br_x,a_br_y)=a[1]
-    
-    (b_tl_x,b_tl_y)=b[0]
-    (b_br_x,b_br_y)=b[1]
-
-    if a_tl_x>b_br_x or a_br_x<b_tl_x or a_tl_y>b_br_y or a_br_y<b_tl_y:
-        return False
-    else:
-        return True
-
-def bbox(s):
-    minx=maxint
-    miny=maxint
-    maxx=minint
-    maxy=minint
-    for item in s:
-        x,y=item['pos']
-        if x<minx:
-            minx=x
-        if y<miny:
-            miny=y
-        if x>maxx:
-            maxx=x
-        if y>maxy:
-            maxy=y
-    return ((minx,miny),(maxx,maxy))
-    
 def find_letter(bbox): # becomes some sort of iterator perhaps
     for letter in letters:
         for item in letter['item']:
-            if is_inside(bbox,item['bbox']):
+            if bounding_box.contains(bbox,item['bbox']):
                 return letter
     return None
     
@@ -605,7 +568,7 @@ def strokes_append(data):
     for stroke in strokes:
 #       pprint.pprint(stroke['stroke'])
 #       print stroke_to_points_set(stroke['stroke'])
-        if bbox_overlap(data['bbox'],stroke['bbox']):
+        if bounding_box.overlaps(data['bbox'],stroke['bbox']):
             # might be good to memoize the generated point sets
             if stroke_to_points_set(data['stroke']) & stroke_to_points_set(stroke['stroke']):
                 multipart_letter=stroke['letter']
@@ -735,7 +698,7 @@ def main():
             down=0
             current_stroke_append(e.pos)
             if len(current_stroke) and startpos!=e.pos:
-                strokes_append({'stroke':current_stroke,'bbox':bbox(current_stroke)})
+                strokes_append({'stroke':current_stroke,'bbox':bounding_box.make(current_stroke)})
         elif e.type == pygame.MOUSEMOTION:
             if drag:
                 x=dorg[0]-e.pos[0]
