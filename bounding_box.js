@@ -36,8 +36,39 @@ function overlaps(a,b){
 }
 
 function make(s){
+   var minx=Number.MAX_VALUE;
+   var miny=Number.MAX_VALUE;
+   var maxx=Number.MIN_VALUE;
+   var maxy=Number.MIN_VALUE;
+
+   var index;
+
+   for(index=0;index<s.length;++index){
+      x=s[index].pos[0];
+      y=s[index].pos[1];
+
+      if(x<minx){
+         minx=x;
+      }
+      if(y<miny){
+         miny=y;
+      }
+      if(x>maxx){
+         maxx=x;
+      }
+      if(y>maxy){
+         maxy=y;
+      }
+   }
+
+   return [[minx,miny],[maxx,maxy]]
 }
 
 console.log(contains([[0,0],[10,10]],[[5,5],[10,10]]))
+
+s=[{pos:[0,0]},{pos:[10,10]},{pos:[-5,11]}]
+
+console.log(make(s))
+
 
 phantom.exit();
