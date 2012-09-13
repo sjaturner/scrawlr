@@ -316,9 +316,6 @@ def distangle(stroke):
         old_y=y
     return ret
 
-def mean(a):
-    return sum(a)/len(a)
-
 def poldiff(a,b):
     pi=numpy.pi
     ret=a-b
@@ -377,6 +374,9 @@ def resample(a,n):
         slice.sort()
         ret.append(median.med(slice)) 
     return tuple(ret)
+
+def mean(a):
+    return sum(a)/len(a)
 
 def sparkline_filter(data):
 #   ret={}
