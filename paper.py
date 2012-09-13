@@ -350,17 +350,6 @@ def correlate(a,b): # memoize this
 
     return val
 
-def cmp_score(x,y):
-    xsc=x['score']
-    ysc=y['score']
-    
-    if xsc>ysc:
-        return +1
-    elif xsc<ysc:
-        return -1
-    else:
-        return 0
-
 def resample(a,n):
     while len(a)<64:
         a=[val for val in a for x in (0, 1)]
