@@ -1,5 +1,3 @@
-import angles
-
 def med(a):
     return sorted(a)[len(a)/2]
 
@@ -14,7 +12,7 @@ def bucket(samples,gap,fun):
    
 correlated={}
 
-def correlate(a,b): # memoize this
+def correlate(a,b,deltafun): # memoize this
     if len(a)!=len(b):
         print 'correlate only works for matched length sections'
         sys.exit
@@ -26,7 +24,7 @@ def correlate(a,b): # memoize this
     if b in correlated and a in correlated[b]:
         return correlated[b][a]
 
-    val=sum(map(lambda (x,y):abs(angles.poldiff(x,y)),zip(a,b)))
+    val=sum(map(lambda (x,y):abs(deltafun(x,y)),zip(a,b)))
 
     correlated[a]={}
     correlated[a][b]=val

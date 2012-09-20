@@ -55,6 +55,52 @@ function bucket(samples,gap,fun){
    return ret;
 }
 
-console.log(bucket([1,2,9,4,5,6],5,middle));
+function correlate(a,b,deltafun){
+   var ret=0;
+   var i=0;
+
+   if(a.length!=b.length){
+      /* can only correlate stuff which is the same length */
+      return Number.MAX_VALUE; /* give this a really bad score */
+   }
+
+   for(i=0;i<a.length;++i){
+      var delta=Math.abs(deltafun(a[i],b[i]));
+      ret+=delta;
+   }
+
+   return ret;
+}
+
+function resample(a,n){
+   var d=a;
+   var i=0;
+
+   while(a.length<64){
+      d=[]
+      for(i=0;i<a.length;++i){
+         d.push(a[i]);
+         d.push(a[i]);
+      }
+      a=d;
+   }
+
+   /* incomplete */
+
+   return a;
+}
+
+function test_deltafun(a,b){
+   return a-b;
+}
+
+/*
+   console.log(bucket([1,2,9,4,5,6],5,middle));
+
+   console.log(correlate([1,3,4],[2,4,4],test_deltafun))
+*/
+
+console.log(resample([1,2,3],10));
+
 
 phantom.exit();

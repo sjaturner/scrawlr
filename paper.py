@@ -398,7 +398,7 @@ def stroke_difference(a,b):
         accleastlen=0.0
         accscore=0.0
         for scan in range(len_least):
-            score=utils.correlate(most['sec'][offset+scan]['resampled'],least['sec'][scan]['resampled'])
+            score=utils.correlate(most['sec'][offset+scan]['resampled'],least['sec'][scan]['resampled'],angles.poldiff)
             accscore+=score
 
             mostlen=most['sec'][offset+scan]['len']
