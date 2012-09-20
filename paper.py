@@ -158,7 +158,7 @@ import pprint
 import numpy
 import itertools
 import line
-import median
+import utils
 import bounding_box
 import angles
 
@@ -281,47 +281,6 @@ def current_stroke_append(pos):
     event['pos']=(x,y)
     current_stroke.append(event)
 
-correlated={}
-
-def correlate(a,b): # memoize this
-    if len(a)!=len(b):
-        print 'correlate only works for matched length sections'
-        sys.exit
-
-    global correlated
-
-    if a in correlated and b in correlated[a]:
-        return correlated[a][b]
-    if b in correlated and a in correlated[b]:
-        return correlated[b][a]
-
-    val=sum(map(lambda (x,y):abs(angles.poldiff(x,y)),zip(a,b)))
-
-    correlated[a]={}
-    correlated[a][b]=val
-
-    correlated[b]={}
-    correlated[b][a]=val
-
-    return val
-
-def resample(a,n):
-    while len(a)<64:
-        a=[val for val in a for x in (0, 1)]
-
-    step=float(len(a))/float(n)
-    base=0.0
-    ret=[]
-    while base<len(a):
-        slice=a[int(base):int(base+step)]
-        base+=step;
-        slice.sort()
-        ret.append(median.med(slice)) 
-    return tuple(ret)
-
-def mean(a):
-    return sum(a)/len(a)
-
 def sparkline_filter(data):
 #   ret={}
 #   ret['stroke']=[]
@@ -354,10 +313,10 @@ def sparkline_filter(data):
 
     uniq_points=[]
 
-    last=mean(points[minx])
+    last=utils.mean(points[minx])
     for x in range(minx,maxx+1):
         if x in points:
-            m=mean(points[x])
+            m=utils.mean(points[x])
             uniq_points.append([x,m])
             last=m
         else:
@@ -374,7 +333,7 @@ def sparkline_filter(data):
         for i in range(len(uniq_points)-gap,len(uniq_points)):
             uniq_points[i].append(0)
         arg=[int(x[2]*1000) for x in uniq_points]
-        median_filtered=median.bucket(arg,(2*gap)/gap+1,median.med)
+        median_filtered=utils.bucket(arg,(2*gap)/gap+1,utils.med)
 
         threshold=2.0
         ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0<2.0]],zip(uniq_points,median_filtered))
@@ -389,7 +348,7 @@ def sparkline_filter(data):
     for x,y,a,m,t in ret:
         tot.append(y)
         if state=='up' and not t:
-            sec.append({'len':len(acc),'resampled':resample(acc,nsample)})
+            sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
             state='down'
         elif state=='down' and t:
             acc=[]
@@ -397,7 +356,7 @@ def sparkline_filter(data):
         if state=='up':
             acc.append(y)
     if acc:
-        sec.append({'len':len(acc),'resampled':resample(acc,nsample)})
+        sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
 
     data['sec']=sec
     data['tot']=tot
@@ -439,7 +398,7 @@ def stroke_difference(a,b):
         accleastlen=0.0
         accscore=0.0
         for scan in range(len_least):
-            score=correlate(most['sec'][offset+scan]['resampled'],least['sec'][scan]['resampled'])
+            score=utils.correlate(most['sec'][offset+scan]['resampled'],least['sec'][scan]['resampled'])
             accscore+=score
 
             mostlen=most['sec'][offset+scan]['len']
