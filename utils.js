@@ -90,12 +90,12 @@ function resample(a,n){
    return a;
 }
 
-function test_deltafun(a,b){
-   return a-b;
-}
-
 /*
    console.log(bucket([1,2,9,4,5,6],5,middle));
+
+   function test_deltafun(a,b){
+      return a-b;
+   }
 
    console.log(correlate([1,3,4],[2,4,4],test_deltafun))
 */

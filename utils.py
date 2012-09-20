@@ -44,7 +44,7 @@ def resample(a,n):
     while base<len(a):
         slice=a[int(base):int(base+step)]
         base+=step;
-        slice.sort()
+        slice.sort() # looks as if this is unnecessary
         ret.append(med(slice)) 
     return tuple(ret)
 
