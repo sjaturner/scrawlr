@@ -35,3 +35,14 @@ def distangle(stroke):
         old_x=x
         old_y=y
     return ret
+
+def poldiff(a,b):
+    pi=numpy.pi
+    ret=a-b
+    while ret<-pi:
+        ret+=2*pi
+    while ret>+pi:
+        ret-=2*pi
+#   print  '   ',a,b,ret
+    return ret
+

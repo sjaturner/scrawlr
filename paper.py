@@ -281,16 +281,6 @@ def current_stroke_append(pos):
     event['pos']=(x,y)
     current_stroke.append(event)
 
-def poldiff(a,b):
-    pi=numpy.pi
-    ret=a-b
-    while ret<-pi:
-        ret+=2*pi
-    while ret>+pi:
-        ret-=2*pi
-#   print  '   ',a,b,ret
-    return ret
-
 correlated={}
 
 def correlate(a,b): # memoize this
@@ -305,7 +295,7 @@ def correlate(a,b): # memoize this
     if b in correlated and a in correlated[b]:
         return correlated[b][a]
 
-    val=sum(map(lambda (x,y):abs(poldiff(x,y)),zip(a,b)))
+    val=sum(map(lambda (x,y):abs(angles.poldiff(x,y)),zip(a,b)))
 
     correlated[a]={}
     correlated[a][b]=val
@@ -380,7 +370,7 @@ def sparkline_filter(data):
         for i in range(gap):
             uniq_points[i].append(0)
         for i in range(gap,len(uniq_points)-gap):
-            uniq_points[i].append(abs(poldiff(uniq_points[i-gap][1],uniq_points[i+gap][1])))
+            uniq_points[i].append(abs(angles.poldiff(uniq_points[i-gap][1],uniq_points[i+gap][1])))
         for i in range(len(uniq_points)-gap,len(uniq_points)):
             uniq_points[i].append(0)
         arg=[int(x[2]*1000) for x in uniq_points]

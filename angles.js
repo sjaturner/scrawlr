@@ -52,8 +52,23 @@ function distangle(stroke){
    return ret;
 }
 
-s=[{pos:[0,0]},{pos:[10,10]},{pos:[20,20]},{pos:[30,20]}]
+function poldiff(a,b){
+   var pi=Math.PI;
+   var ret=a-b;
 
-console.log(distangle(s))
+   while(ret<-pi){
+      ret+=2*pi;
+   }
+   while(ret>+pi){
+      ret-=2*pi;
+   }
+   return ret
+}
+
+s=[{pos:[0,0]},{pos:[10,10]},{pos:[20,20]},{pos:[30,20]}];
+
+console.log(distangle(s));
+
+console.log(poldiff(10,110));
 
 phantom.exit();
