@@ -281,62 +281,90 @@ def current_stroke_append(pos):
     event['pos']=(x,y)
     current_stroke.append(event)
 
-def sparkline_filter(data):
-#   ret={}
-#   ret['stroke']=[]
-
-    graph=angles.distangle(data['stroke'])
-    points={}
-
+def clean_distangle(graph):
+    # this resamples the distance angle line and fully populates it for integer distances along the line
+    # actually, it looks as if it returns a list of tuples of distance and angle, the distance part may be unnecessary
     minx=maxint
     maxx=minint
-
     scale=100.0
-    if len(graph)<2:
-        return
-
-    for i in range(0,len(graph)-1):
+    points={} # hash to record all of the interpolated point
+    for i in range(0,len(graph)-1): # go through all of the line sections in the distance angle graph
         x0=int(graph[i+0][0])
         y0=int(scale*graph[i+0][1])
         x1=int(graph[i+1][0])
         y1=int(scale*graph[i+1][1])
-        for (x,y) in line.points(x0,y0,x1,y1):
-            ix=int(x)
+        for (x,y) in line.points(x0,y0,x1,y1): # convert the line section to points
+            ix=int(x) # find the x position as an integer
+
+            # we need to know where the line starts and ends
+            # in all porbablility this will start at zero and go up to the total length of the stroke
             if ix>maxx:
                 maxx=ix
             if ix<minx:
                 minx=ix
-            if ix in points:
-                points[ix].append(y/scale)
-            else:
-                points[ix]=[y/scale]
 
-    uniq_points=[]
+            # points is an array bins of the angle value at any given integer distance from the start of the stroke
+            if ix in points:
+                points[ix].append(y/scale) # add a value to an existing bin
+            else:
+                points[ix]=[y/scale] # create a new bin
+
+    # this is going to hold a clean, fully populated distance angle graph
+    # means are used when the bins contain more than one value
+    # any gaps are filled in with the last value seen
+    ret=[]
 
     last=utils.mean(points[minx])
-    for x in range(minx,maxx+1):
-        if x in points:
+    for x in range(minx,maxx+1): # iterate over the entire range, there will be no gaps in this clean resampler
+        if x in points: 
             m=utils.mean(points[x])
-            uniq_points.append([x,m])
+            ret.append([x,m])
             last=m
         else:
-            uniq_points.append([x,last])
+            ret.append([x,last])
+    return ret;
 
+def sparkline_filter(data):
+    # really this needs to return a failure condition, there are many places where failure can occur and we need to know
+    graph=angles.distangle(data['stroke'])
+
+    if len(graph)<2:
+        # careful, not added products to data at this point
+        return
+
+    uniq_points=clean_distangle(graph)
+
+    # this next part looks a bit like a spreadsheet, could do better
+    # we are looking for points of inflection
     gap=3
-    
     ret=[]
     if len(uniq_points)>2*gap:
+
+        # header, call it no gap
         for i in range(gap):
             uniq_points[i].append(0)
+
+        # in the middle of the range add a new element to the array at each distance point
+        # this is the angle difference between the points at gap plus this distance and gap minus this difference
         for i in range(gap,len(uniq_points)-gap):
             uniq_points[i].append(abs(angles.poldiff(uniq_points[i-gap][1],uniq_points[i+gap][1])))
+
+        # tailer, again no gap
         for i in range(len(uniq_points)-gap,len(uniq_points)):
             uniq_points[i].append(0)
-        arg=[int(x[2]*1000) for x in uniq_points]
+
+        # arg is just a scaled up version of the angle difference across twice the gap
+        # we need integers for the upcoming median filter to make sense
+        arg=[int(x[2]*1000) for x in uniq_points] 
+
+        # here is some smoothing of the difference data, see how it is actually proportinal to the gap
         median_filtered=utils.bucket(arg,(2*gap)/gap+1,utils.med)
 
+        # welcome to heuristics city
         threshold=2.0
-        ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0<2.0]],zip(uniq_points,median_filtered))
+        ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0<threshold]],zip(uniq_points,median_filtered))
+    else:
+        pass # aaargh, what happens here, this is also a fail
 
     nsample=16
 
