@@ -343,22 +343,26 @@ def special_filter(data):
     if len(uniq_points)<=2*gap:
         pass # aaargh, what happens here, this is also a fail
 
+    delta=[]
     # header, call it no gap
     for i in range(gap):
+        delta.append(0)
         uniq_points[i].append(0)
 
     # in the middle of the range add a new element to the array at each distance point
     # this is the angle difference between the points at gap plus this distance and gap minus this difference
     for i in range(gap,len(uniq_points)-gap):
-        uniq_points[i].append(abs(angles.poldiff(uniq_points[i-gap][1],uniq_points[i+gap][1])))
+        delta.append(abs(angles.poldiff(uniq_points[i-gap][1],uniq_points[i+gap][1])))
+        uniq_points[i].append(0)
 
     # tailer, again no gap
     for i in range(len(uniq_points)-gap,len(uniq_points)):
+        delta.append(0)
         uniq_points[i].append(0)
 
     # arg is just a scaled up version of the angle difference across twice the gap
     # we need integers for the upcoming median filter to make sense
-    arg=[int(x[2]*1000) for x in uniq_points] 
+    arg=[int(x*1000) for x in delta] 
 
     # here is some smoothing of the difference data, see how it is actually proportinal to the gap
     median_filtered=utils.bucket(arg,(2*gap)/gap+1,utils.med)
