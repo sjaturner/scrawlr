@@ -370,13 +370,10 @@ def special_filter(data):
 
     nsample=16
 
-    state='up'
-    tot=[]
     sec=[]
-
     acc=[]
-    for x,y,a,m,t in table:
-        tot.append(y)
+    state='up'
+    for x,y,a,m,t in table: 
         if state=='up' and not t:
             sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
             state='down'
@@ -389,7 +386,7 @@ def special_filter(data):
         sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
 
     data['sec']=sec
-    data['tot']=tot
+    data['tot']=[y for x,y,a in uniq_points]
 
 def proportion(data,sec):
     return sec['len']/len(data['tot'])
