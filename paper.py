@@ -347,18 +347,15 @@ def special_filter(data):
     # header, call it no gap
     for i in range(gap):
         delta.append(0)
-        uniq_points[i].append(0)
 
     # in the middle of the range add a new element to the array at each distance point
     # this is the angle difference between the points at gap plus this distance and gap minus this difference
     for i in range(gap,len(uniq_points)-gap):
         delta.append(abs(angles.poldiff(uniq_points[i-gap][1],uniq_points[i+gap][1])))
-        uniq_points[i].append(0)
 
     # tailer, again no gap
     for i in range(len(uniq_points)-gap,len(uniq_points)):
         delta.append(0)
-        uniq_points[i].append(0)
 
     # arg is just a scaled up version of the angle difference across twice the gap
     # we need integers for the upcoming median filter to make sense
@@ -370,14 +367,14 @@ def special_filter(data):
     # welcome to heuristics city
     threshold=2.0
     # 
-    table=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0<threshold]],zip(uniq_points,median_filtered))
+    table=map(lambda x:[x[0][0],x[0][1],x[1]/1000.0,(0,1)[x[1]/1000.0<threshold]],zip(uniq_points,median_filtered))
 
     nsample=16
 
     sec=[]
     acc=[]
     state='up'
-    for x,y,a,m,t in table: 
+    for x,y,m,t in table: 
         if state=='up' and not t:
             sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
             state='down'
@@ -390,7 +387,7 @@ def special_filter(data):
         sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
 
     data['sec']=sec
-    data['tot']=[y for x,y,a in uniq_points]
+    data['tot']=[y for x,y in uniq_points]
 
 def proportion(data,sec):
     return sec['len']/len(data['tot'])
