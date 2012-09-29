@@ -324,7 +324,10 @@ def clean_distangle(graph):
             ret.append([x,last])
     return ret;
 
-def sparkline_filter(data):
+def salient_split():
+    pass
+
+def special_filter(data):
     # really this needs to return a failure condition, there are many places where failure can occur and we need to know
     graph=angles.distangle(data['stroke'])
 
@@ -337,34 +340,33 @@ def sparkline_filter(data):
     # this next part looks a bit like a spreadsheet, could do better
     # we are looking for points of inflection
     gap=3
-    ret=[]
-    if len(uniq_points)>2*gap:
-
-        # header, call it no gap
-        for i in range(gap):
-            uniq_points[i].append(0)
-
-        # in the middle of the range add a new element to the array at each distance point
-        # this is the angle difference between the points at gap plus this distance and gap minus this difference
-        for i in range(gap,len(uniq_points)-gap):
-            uniq_points[i].append(abs(angles.poldiff(uniq_points[i-gap][1],uniq_points[i+gap][1])))
-
-        # tailer, again no gap
-        for i in range(len(uniq_points)-gap,len(uniq_points)):
-            uniq_points[i].append(0)
-
-        # arg is just a scaled up version of the angle difference across twice the gap
-        # we need integers for the upcoming median filter to make sense
-        arg=[int(x[2]*1000) for x in uniq_points] 
-
-        # here is some smoothing of the difference data, see how it is actually proportinal to the gap
-        median_filtered=utils.bucket(arg,(2*gap)/gap+1,utils.med)
-
-        # welcome to heuristics city
-        threshold=2.0
-        ret=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0<threshold]],zip(uniq_points,median_filtered))
-    else:
+    if len(uniq_points)<=2*gap:
         pass # aaargh, what happens here, this is also a fail
+
+    # header, call it no gap
+    for i in range(gap):
+        uniq_points[i].append(0)
+
+    # in the middle of the range add a new element to the array at each distance point
+    # this is the angle difference between the points at gap plus this distance and gap minus this difference
+    for i in range(gap,len(uniq_points)-gap):
+        uniq_points[i].append(abs(angles.poldiff(uniq_points[i-gap][1],uniq_points[i+gap][1])))
+
+    # tailer, again no gap
+    for i in range(len(uniq_points)-gap,len(uniq_points)):
+        uniq_points[i].append(0)
+
+    # arg is just a scaled up version of the angle difference across twice the gap
+    # we need integers for the upcoming median filter to make sense
+    arg=[int(x[2]*1000) for x in uniq_points] 
+
+    # here is some smoothing of the difference data, see how it is actually proportinal to the gap
+    median_filtered=utils.bucket(arg,(2*gap)/gap+1,utils.med)
+
+    # welcome to heuristics city
+    threshold=2.0
+    # 
+    table=map(lambda x:[x[0][0],x[0][1],x[0][2],x[1]/1000.0,(0,1)[x[1]/1000.0<threshold]],zip(uniq_points,median_filtered))
 
     nsample=16
 
@@ -373,7 +375,7 @@ def sparkline_filter(data):
     sec=[]
 
     acc=[]
-    for x,y,a,m,t in ret:
+    for x,y,a,m,t in table:
         tot.append(y)
         if state=='up' and not t:
             sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
@@ -489,7 +491,7 @@ def stroke_to_points_set(stroke):
 
 def strokes_append(data):
     global last_data
-    sparkline_filter(data)
+    special_filter(data)
 
     ret=[]
 
