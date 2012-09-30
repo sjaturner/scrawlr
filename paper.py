@@ -327,6 +327,29 @@ def clean_distangle(graph):
 def salient_split():
     pass
 
+def gap_delta_ints(gap,points):
+    delta=[]
+
+    # header, call it no gap
+    for i in range(gap):
+        delta.append(0)
+
+    # in the middle of the range add a new element to the array at each distance point
+    # this is the angle difference between the points at gap plus this distance and gap minus this difference
+    for i in range(gap,len(points)-gap):
+        delta.append(abs(angles.poldiff(points[i-gap],points[i+gap])))
+
+    # tailer, again no gap
+    for i in range(len(points)-gap,len(points)):
+        delta.append(0)
+
+    # arg is just a scaled up version of the angle difference across twice the gap
+    # we need integers for the upcoming median filter to make sense
+    arg=[int(x*1000) for x in delta] 
+
+    # here is some smoothing of the difference data, see how it is actually proportinal to the gap
+    return [x/1000.0 for x in utils.bucket(arg,(2*gap)/gap+1,utils.med)]
+
 def special_filter(data):
     # really this needs to return a failure condition, there are many places where failure can occur and we need to know
     graph=angles.distangle(data['stroke'])
@@ -343,38 +366,19 @@ def special_filter(data):
     if len(uniq_points)<=2*gap:
         pass # aaargh, what happens here, this is also a fail
 
-    delta=[]
-    # header, call it no gap
-    for i in range(gap):
-        delta.append(0)
-
-    # in the middle of the range add a new element to the array at each distance point
-    # this is the angle difference between the points at gap plus this distance and gap minus this difference
-    for i in range(gap,len(uniq_points)-gap):
-        delta.append(abs(angles.poldiff(uniq_points[i-gap][1],uniq_points[i+gap][1])))
-
-    # tailer, again no gap
-    for i in range(len(uniq_points)-gap,len(uniq_points)):
-        delta.append(0)
-
-    # arg is just a scaled up version of the angle difference across twice the gap
-    # we need integers for the upcoming median filter to make sense
-    arg=[int(x*1000) for x in delta] 
-
-    # here is some smoothing of the difference data, see how it is actually proportinal to the gap
-    median_filtered=utils.bucket(arg,(2*gap)/gap+1,utils.med)
+    median_filtered=gap_delta_ints(gap,[x[1] for x in uniq_points])
 
     # welcome to heuristics city
     threshold=2.0
-    # 
-    table=map(lambda x:[x[0][0],x[0][1],x[1]/1000.0,(0,1)[x[1]/1000.0<threshold]],zip(uniq_points,median_filtered))
+
+    table=map(lambda x:[x[0][1],(0,1)[x[1]<threshold]],zip(uniq_points,median_filtered))
 
     nsample=16
 
     sec=[]
     acc=[]
     state='up'
-    for x,y,m,t in table: 
+    for y,t in table: 
         if state=='up' and not t:
             sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
             state='down'
