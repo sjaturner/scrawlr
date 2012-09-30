@@ -327,8 +327,10 @@ def clean_distangle(graph):
 def salient_split():
     pass
 
-def gap_delta_ints(gap,points):
+def gap_delta(gap,points):
     delta=[]
+
+    scale=1000.0
 
     # header, call it no gap
     for i in range(gap):
@@ -337,18 +339,17 @@ def gap_delta_ints(gap,points):
     # in the middle of the range add a new element to the array at each distance point
     # this is the angle difference between the points at gap plus this distance and gap minus this difference
     for i in range(gap,len(points)-gap):
-        delta.append(abs(angles.poldiff(points[i-gap],points[i+gap])))
+        # arg is just a scaled up version of the angle difference across twice the gap
+        # we need integers for the upcoming median filter to make sense
+        delta.append(int(scale*abs(angles.poldiff(points[i-gap],points[i+gap]))))
 
     # tailer, again no gap
     for i in range(len(points)-gap,len(points)):
         delta.append(0)
 
-    # arg is just a scaled up version of the angle difference across twice the gap
-    # we need integers for the upcoming median filter to make sense
-    arg=[int(x*1000) for x in delta] 
-
     # here is some smoothing of the difference data, see how it is actually proportinal to the gap
-    return [x/1000.0 for x in utils.bucket(arg,(2*gap)/gap+1,utils.med)]
+    # note the scale removal
+    return [x/scale for x in utils.bucket(delta,(2*gap)/gap+1,utils.med)]
 
 def special_filter(data):
     # really this needs to return a failure condition, there are many places where failure can occur and we need to know
@@ -366,7 +367,7 @@ def special_filter(data):
     if len(uniq_points)<=2*gap:
         pass # aaargh, what happens here, this is also a fail
 
-    median_filtered=gap_delta_ints(gap,uniq_points)
+    median_filtered=gap_delta(gap,uniq_points)
 
     # welcome to heuristics city
     threshold=2.0
@@ -375,6 +376,7 @@ def special_filter(data):
 
     nsample=16
 
+    # this bit is the slicer
     sec=[]
     acc=[]
     state='up'
