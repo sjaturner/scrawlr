@@ -366,7 +366,7 @@ def special_filter(data):
     if len(uniq_points)<=2*gap:
         pass # aaargh, what happens here, this is also a fail
 
-    median_filtered=gap_delta_ints(gap,[x for x in uniq_points])
+    median_filtered=gap_delta_ints(gap,uniq_points)
 
     # welcome to heuristics city
     threshold=2.0
@@ -391,7 +391,7 @@ def special_filter(data):
         sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
 
     data['sec']=sec
-    data['tot']=y
+    data['tot']=uniq_points;
 
 def proportion(data,sec):
     return sec['len']/len(data['tot'])
