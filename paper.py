@@ -318,10 +318,10 @@ def clean_distangle(graph):
     for x in range(minx,maxx+1): # iterate over the entire range, there will be no gaps in this clean resampler
         if x in points: 
             m=utils.mean(points[x])
-            ret.append([x,m])
+            ret.append(m)
             last=m
         else:
-            ret.append([x,last])
+            ret.append(last)
     return ret;
 
 def salient_split():
@@ -366,12 +366,12 @@ def special_filter(data):
     if len(uniq_points)<=2*gap:
         pass # aaargh, what happens here, this is also a fail
 
-    median_filtered=gap_delta_ints(gap,[x[1] for x in uniq_points])
+    median_filtered=gap_delta_ints(gap,[x for x in uniq_points])
 
     # welcome to heuristics city
     threshold=2.0
 
-    table=map(lambda x:[x[0][1],(0,1)[x[1]<threshold]],zip(uniq_points,median_filtered))
+    table=map(lambda x:[x[0],(0,1)[x[1]<threshold]],zip(uniq_points,median_filtered))
 
     nsample=16
 
@@ -391,7 +391,7 @@ def special_filter(data):
         sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
 
     data['sec']=sec
-    data['tot']=[y for x,y in uniq_points]
+    data['tot']=y
 
 def proportion(data,sec):
     return sec['len']/len(data['tot'])
