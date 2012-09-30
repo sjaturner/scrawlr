@@ -324,9 +324,6 @@ def clean_distangle(graph):
             ret.append(last)
     return ret;
 
-def salient_split():
-    pass
-
 def gap_delta(gap,points):
     delta=[]
 
@@ -351,21 +348,21 @@ def gap_delta(gap,points):
     # note the scale removal
     return [x/scale for x in utils.bucket(delta,(2*gap)/gap+1,utils.med)]
 
-def special_filter(data):
+def salient_split(points):
     # welcome to heuristics city
     # really this needs to return a failure condition, there are many places where failure can occur and we need to know
-    graph=angles.distangle(data['stroke'])
+    graph=angles.distangle(points)
 
     if len(graph)<2:
         # careful, not added products to data at this point
-        return
+        return {}
 
     uniq_points=clean_distangle(graph)
 
     # we are looking for points of inflection
     gap=3
     if len(uniq_points)<=2*gap:
-        pass # aaargh, what happens here, this is also a fail
+        return {}
 
     median_filtered=gap_delta(gap,uniq_points)
 
@@ -391,11 +388,23 @@ def special_filter(data):
     if acc:
         sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
 
-    data['sec']=sec
-    data['tot']=uniq_points;
+    ret={}
+    ret['sec']=sec
+    ret['len']=len(uniq_points)
+    
+    return ret
+
+def special_filter(data):
+    val=salient_split(data['stroke'])
+    if not val:
+        return 0
+    else:
+        data['sec']=val['sec']
+        data['len']=val['len']
+        return 1
 
 def proportion(data,sec):
-    return sec['len']/len(data['tot'])
+    return sec['len']/data['len']
 
 def score_cmp(x,y):
     xsc=y[0]
@@ -420,8 +429,8 @@ def stroke_difference(a,b):
         most,len_most=b,len_b
         least,len_least=a,len_a
 
-    mosttotallen=len(most['tot'])
-    leasttotallen=len(least['tot'])
+    mosttotallen=most['len']
+    leasttotallen=least['len']
 
     # and this think needs to be a function called stroke match or something
     for offset in range(len_most-len_least+1):
@@ -494,7 +503,9 @@ def stroke_to_points_set(stroke):
 
 def strokes_append(data):
     global last_data
-    special_filter(data)
+    if not special_filter(data):
+        # probably too short
+        return
 
     ret=[]
 
