@@ -352,6 +352,7 @@ def gap_delta(gap,points):
     return [x/scale for x in utils.bucket(delta,(2*gap)/gap+1,utils.med)]
 
 def special_filter(data):
+    # welcome to heuristics city
     # really this needs to return a failure condition, there are many places where failure can occur and we need to know
     graph=angles.distangle(data['stroke'])
 
@@ -361,7 +362,6 @@ def special_filter(data):
 
     uniq_points=clean_distangle(graph)
 
-    # this next part looks a bit like a spreadsheet, could do better
     # we are looking for points of inflection
     gap=3
     if len(uniq_points)<=2*gap:
@@ -369,18 +369,17 @@ def special_filter(data):
 
     median_filtered=gap_delta(gap,uniq_points)
 
-    # welcome to heuristics city
-    threshold=2.0
-
-    table=map(lambda x:[x[0],(0,1)[x[1]<threshold]],zip(uniq_points,median_filtered))
-
-    nsample=16
-
     # this bit is the slicer
+    nsample=16
+    threshold=2.0
     sec=[]
     acc=[]
     state='up'
-    for y,t in table: 
+
+    for i in range(0,len(uniq_points)):
+        y=uniq_points[i]
+        t=median_filtered[i]<threshold
+
         if state=='up' and not t:
             sec.append({'len':len(acc),'resampled':utils.resample(acc,nsample)})
             state='down'
