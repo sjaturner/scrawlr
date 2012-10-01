@@ -98,9 +98,9 @@ function resample(a,n){
    }
 
    console.log(correlate([1,3,4],[2,4,4],test_deltafun))
-*/
 
 console.log(resample([1,2,3],10));
 
 
 phantom.exit();
+*/
