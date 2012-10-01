@@ -6,7 +6,7 @@ def distangle(stroke):
     acc_x=0
     ret=[]
     for event in stroke:
-        pos=event['pos']
+        pos=event
         x=pos[0]
         y=pos[1]
         if first:

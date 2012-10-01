@@ -44,8 +44,8 @@ function make(s){
    var index;
 
    for(index=0;index<s.length;++index){
-      x=s[index].pos[0];
-      y=s[index].pos[1];
+      x=s[index][0];
+      y=s[index][1];
 
       if(x<minx){
          minx=x;
@@ -64,9 +64,9 @@ function make(s){
    return [[minx,miny],[maxx,maxy]]
 }
 
-console.log(contains([[0,0],[10,10]],[[5,5],[10,10]]))
+console.log(contains([[0,0],[20,20]],[[5,5],[10,10]]))
 
-s=[{pos:[0,0]},{pos:[10,10]},{pos:[-5,11]}]
+s=[[0,0],[10,10],[-5,11]]
 
 console.log(make(s))
 

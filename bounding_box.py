@@ -30,7 +30,7 @@ def make(s):
     maxx=minint
     maxy=minint
     for item in s:
-        x,y=item['pos']
+        x,y=item
         if x<minx:
             minx=x
         if y<miny:

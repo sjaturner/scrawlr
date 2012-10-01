@@ -198,8 +198,8 @@ def stroke_render(s,colour):
     if len(s)<2:
         return
     for item in s:
-        x=item['pos'][0]-orgx
-        y=item['pos'][1]-orgy
+        x=item[0]-orgx
+        y=item[1]-orgy
         pointlist.append((x,y))
     pygame.draw.lines(screen,colour,False,pointlist,1)
 
@@ -278,7 +278,7 @@ def current_stroke_append(pos):
     event={}
     x=pos[0]+orgx
     y=pos[1]+orgy
-    event['pos']=(x,y)
+    event=(x,y)
     current_stroke.append(event)
 
 
@@ -381,9 +381,9 @@ def stroke_to_points_set(stroke):
     ret=[]
     for index in range(len(stroke)):
         if index==0:
-            x0,y0=stroke[index]['pos']
+            x0,y0=stroke[index]
         else:
-            x1,y1=stroke[index]['pos']
+            x1,y1=stroke[index]
             for xoff,yoff in ((+1,0),(-1,0),(0,+1),(0,-1)): # fatten
                 ret.extend(line.points(x0+xoff,y0+yoff,x1+xoff,y1+yoff))
             x0,y0=x1,y1

@@ -9,9 +9,8 @@ function distangle(stroke){
    var old_y;
 
    for(index=0;index<stroke.length;++index){
-      var pos=stroke[index].pos;
-      var x=pos[0]
-      var y=pos[1]
+      var x=stroke[index][0]
+      var y=stroke[index][1]
 
       if(first){
          first=0;
@@ -65,7 +64,7 @@ function poldiff(a,b){
    return ret
 }
 
-s=[{pos:[0,0]},{pos:[10,10]},{pos:[20,20]},{pos:[30,20]}];
+s=[[0,0],[10,10],[20,20],[30,20]];
 
 console.log(distangle(s));
 
