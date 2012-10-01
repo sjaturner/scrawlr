@@ -74,6 +74,7 @@ def gap_delta(gap,points):
     return [x/scale for x in utils.bucket(delta,(2*gap)/gap+1,utils.med)]
 
 def salient(points):
+    print points
     # welcome to heuristics city
     # really this needs to return a failure condition, there are many places where failure can occur and we need to know
     graph=angles.distangle(points)

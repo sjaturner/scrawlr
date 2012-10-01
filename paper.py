@@ -276,7 +276,6 @@ def render():
 
 def current_stroke_append(pos):
     event={}
-    event['time']=paper_time()
     x=pos[0]+orgx
     y=pos[1]+orgy
     event['pos']=(x,y)
@@ -397,6 +396,7 @@ def strokes_append(data):
         return
 
     ret=[]
+    data['time']=paper_time()
 
     last_data=data
 
