@@ -90,6 +90,17 @@ function resample(a,n){
    return a;
 }
 
+function mean(a){
+   var i=0;
+   var sum=0;
+
+   for(i=0;i<a.length;++i){
+      sum+=a[i];
+   }
+
+   return sum/a.length;
+}
+
 /*
    console.log(bucket([1,2,9,4,5,6],5,middle));
 
