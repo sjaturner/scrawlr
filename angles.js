@@ -64,6 +64,7 @@ function poldiff(a,b){
    return ret
 }
 
+/*
 s=[[0,0],[10,10],[20,20],[30,20]];
 
 console.log(distangle(s));
@@ -71,3 +72,4 @@ console.log(distangle(s));
 console.log(poldiff(10,110));
 
 phantom.exit();
+*/
