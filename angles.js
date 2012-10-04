@@ -24,7 +24,10 @@ function distangle(stroke){
             var old_t=0;
 
             acc_x+=r;
-            t=Math.atan(dy,dx)
+
+            t=Math.atan2(dy,dx)
+
+            console.log('z',dx,dy,t);
             if(fangle){
                fangle=0;
                angle=t;

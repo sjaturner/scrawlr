@@ -18,6 +18,8 @@ def distangle(stroke):
             if r>0.0:
                 acc_x+=r
                 t=numpy.arctan2(dy, dx)
+                print 'z',dx,dy,t
+
                 if fangle:
                     fangle=0
                     angle=t

@@ -96,8 +96,8 @@ function gap_delta(gap,points){
       delta.push(0);
    }
 
-   console.log(points);
-   console.log(delta);
+// console.log(points);
+// console.log(delta);
 
    medians=bucket(delta,(2*gap)/gap+1,middle);
 
@@ -105,12 +105,87 @@ function gap_delta(gap,points){
       ret.push(medians[i]/scale);
    }
 
-   console.log(ret);
+// console.log(ret);
+   return ret;
 }
 
-gap_delta(3,[1,1,1,1,1,1,1,1,1,1,1,1,1,2,-1,-1,-1,-1,-1,0,0,0,1,1,1,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3]);
+function salient(points){
+   var graph=distangle(points);
+   var uniq_points;
+   var gap=3;
+   var median_filtered;
+
+   var nsample=16;
+   var threshold=2.0;
+   var sec=[];
+   var acc=[];
+   var state='up';
+
+   var i=0;
+   var y=0;
+   var t=0;
+
+   console.log('graph',graph);
+   if(graph.length<2){
+      console.log(graph.length);
+      console.log('first exit');
+      return {}
+   }
+
+   uniq_points=clean_distangle(graph);
+   console.log(uniq_points);
+
+   if(uniq_points.length<2*gap){
+      console.log('next exit');
+      return {}
+   }
+
+   median_filtered=gap_delta(gap,uniq_points);
+
+   console.log('median_filtered',median_filtered);
+
+   for(i=0;i<uniq_points.length;++i){
+      y=uniq_points[i];
+
+      t=median_filtered[i]<threshold;
+
+      console.log('t',t,median_filtered[i]);
+
+      if(state=='up' && !t){
+         console.log('before here',acc);
+         sec.push({'len':acc.length,'resamples':resample(acc,nsample)});
+         console.log('after here');
+         state='down';
+      }
+      else if(state=='down' && t){
+         acc=[];
+         state='up';
+      }
+      else{
+         acc.push(y);
+      }
+   }
+      
+
+   if(acc.length){
+      sec.push({'len':acc.length,'resamples':resample(acc,nsample)});
+   }
+
+   for(i=0;i<sec.length;++i){
+      console.log(sec[i].len);
+   }
+
+   console.log(sec);
+
+   return {'sec':sec,'len':uniq_points.length}
+}
+
+
+console.log(salient([[410, 113], [410, 112], [411, 112], [412, 112], [413, 112], [416, 112], [421, 112], [432, 112], [447, 112], [462, 112], [480, 111], [499, 110], [518, 109], [534, 108], [547, 108], [557, 108], [562, 108], [566, 108], [567, 108], [566, 108], [565, 108], [564, 108], [563, 108], [562, 109], [559, 110], [551, 112], [535, 117], [508, 127], [490, 133], [475, 140], [453, 147], [420, 159], [406, 165], [398, 168], [393, 170], [389, 172], [390, 172], [394, 171], [401, 170], [432, 166], [469, 162], [507, 157], [547, 153], [585, 149], [613, 147], [628, 145], [639, 145], [644, 145], [646, 145], [645, 145], [645, 145]]));
 
 /*
+console.log(salient([[308, 107], [308, 105], [306, 103], [302, 100], [297, 97], [291, 95], [283, 93], [275, 92], [267, 92], [258, 93], [248, 96], [239, 99], [231, 102], [225, 106], [223, 111], [223, 115], [223, 119], [224, 123], [227, 131], [233, 139], [241, 147], [250, 154], [259, 159], [266, 164], [271, 169], [274, 175], [275, 181], [275, 188], [274, 193], [272, 197], [267, 202], [261, 206], [250, 212], [237, 215], [219, 218], [200, 218], [184, 218], [172, 216], [162, 213], [156, 210], [152, 207], [151, 205], [150, 204], [150, 203], [150, 203]]));
+gap_delta(3,[1,1,1,1,1,1,1,1,1,1,1,1,1,2,-1,-1,-1,-1,-1,0,0,0,1,1,1,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3]);
 console.log(clean_distangle([[0,0],[10,10]]));
 input=[[308, 107], [308, 105], [306, 103], [302, 100], [297, 97], [291, 95], [283, 93], [275, 92], [267, 92], [258, 93], [248, 96], [239, 99], [231, 102], [225, 106], [223, 111], [223, 115], [223, 119], [224, 123], [227, 131], [233, 139], [241, 147], [250, 154], [259, 159], [266, 164], [271, 169], [274, 175], [275, 181], [275, 188], [274, 193], [272, 197], [267, 202], [261, 206], [250, 212], [237, 215], [219, 218], [200, 218], [184, 218], [172, 216], [162, 213], [156, 210], [152, 207], [151, 205], [150, 204], [150, 203], [150, 203]]
 console.log(line_points(0,0,10,10));
