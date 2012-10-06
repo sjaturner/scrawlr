@@ -75,6 +75,10 @@ function correlate(a,b,deltafun){
 function resample(a,n){
    var d=a;
    var i=0;
+   var step=a.length/n;
+   var base=0.0;
+   var ret=[];
+   var slice=[]
 
    while(a.length<64){
       d=[]
@@ -85,9 +89,13 @@ function resample(a,n){
       a=d;
    }
 
-   /* incomplete */
+   while(base<a.length){
+      var slice=a.slice(base|0,(base+step)|0);
+      ret.push(middle(slice));
+      base+=step;
+   }
 
-   return a;
+   return ret;
 }
 
 function mean(a){
