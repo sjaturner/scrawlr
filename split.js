@@ -139,7 +139,7 @@ function salient(points){
 
 
       if(state=='up' && !t){
-         sec.push({'len':acc.length,'resamples':resample(acc,nsample)});
+         sec.push({'len':acc.length,'resampled':resample(acc,nsample)});
          state='down';
       }
       else if(state=='down' && t){
@@ -153,7 +153,7 @@ function salient(points){
       
 
    if(acc.length){
-      sec.push({'len':acc.length,'resamples':resample(acc,nsample)});
+      sec.push({'len':acc.length,'resampled':resample(acc,nsample)});
    }
 
    for(i=0;i<sec.length;++i){
