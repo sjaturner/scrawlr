@@ -5,10 +5,10 @@ function differences_stroke(a,b){
    var len_a=a.sec.length;
    var len_b=b.sec.length;
    var most;
-   var most_len;
+   var len_most;
    var most_total_len;
    var least;
-   var least_len;
+   var len_least;
    var least_total_len;
    var offset;
    var log_hi;
@@ -18,35 +18,45 @@ function differences_stroke(a,b){
    var scan;
    var score;
 
+   var most_len;
+   var least_len;
+
    if(len_a>len_b){
       most=a;
-      most_len=len_a;
+      len_most=len_a;
 
       least=b;
-      least_len=len_b;
+      len_least=len_b;
    }
    else{
       most=b;
-      most_len=len_b;
+      len_most=len_b;
 
       least=a;
-      least_len=len_a;
+      len_least=len_a;
    }
 
    most_total_len=most.len;
    least_total_len=least.len;
 
 
-   for(offset=0;offset<most_len-least_len+1;++offset){
+   for(offset=0;offset<len_most-len_least+1;++offset){
       log_hi=Number.MIN_VALUE;
       log_lo=Number.MAX_VALUE;
       acc_most_len=0;
       acc_least_len=0;
       acc_score=0;
 
-      for(scan=0;scan<least_len;++scan){
+      for(scan=0;scan<len_least;++scan){
          score=correlate(most.sec[offset+scan].resampled,least.sec[offset].resampled,poldiff);
          console.log(offset+scan,scan,score);
+         acc_score+=score;
+
+         most_len=most.sec[offset+scan].len;
+         acc_most_len+=most_len;
+
+         least_len=least.sec[scan].len;
+         acc_least_len+=least_len;
       }
    }
 

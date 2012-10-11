@@ -33,13 +33,13 @@ def stroke(a,b):
             score=utils.correlate(most['sec'][offset+scan]['resampled'],least['sec'][scan]['resampled'],angles.poldiff)
             acc_score+=score
 
-            mostlen=most['sec'][offset+scan]['len']
-            acc_most_len+=mostlen
+            most_len=most['sec'][offset+scan]['len']
+            acc_most_len+=most_len
 
-            leastlen=least['sec'][scan]['len']
-            acc_least_len+=leastlen
+            least_len=least['sec'][scan]['len']
+            acc_least_len+=least_len
 
-            lograt=numpy.log(float(mostlen)/float(leastlen))
+            lograt=numpy.log(float(most_len)/float(least_len))
             
             if lograt>log_hi:
                 log_hi=lograt
