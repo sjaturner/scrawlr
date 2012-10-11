@@ -19,45 +19,45 @@ def stroke(a,b):
         most,len_most=b,len_b
         least,len_least=a,len_a
 
-    mosttotallen=most['len']
-    leasttotallen=least['len']
+    most_total_len=most['len']
+    least_total_len=least['len']
 
     # and this think needs to be a function called stroke match or something
     for offset in range(len_most-len_least+1):
-        loghi=minint
-        loglo=maxint
-        accmostlen=0.0
-        accleastlen=0.0
-        accscore=0.0
+        log_hi=minint
+        log_lo=maxint
+        acc_most_len=0.0
+        acc_least_len=0.0
+        acc_score=0.0
         for scan in range(len_least):
             score=utils.correlate(most['sec'][offset+scan]['resampled'],least['sec'][scan]['resampled'],angles.poldiff)
-            accscore+=score
+            acc_score+=score
 
             mostlen=most['sec'][offset+scan]['len']
-            accmostlen+=mostlen
+            acc_most_len+=mostlen
 
             leastlen=least['sec'][scan]['len']
-            accleastlen+=leastlen
+            acc_least_len+=leastlen
 
             lograt=numpy.log(float(mostlen)/float(leastlen))
             
-            if lograt>loghi:
-                loghi=lograt
+            if lograt>log_hi:
+                log_hi=lograt
 
-            if lograt<loglo:
-                loglo=lograt
+            if lograt<log_lo:
+                log_lo=lograt
 
-        logscale=loghi-loglo
-        leastrat=accleastlen/(1+leasttotallen)
-        mostrat=accmostlen/(1+mosttotallen)
+        logscale=log_hi-log_lo
+        leastrat=acc_least_len/(1+least_total_len)
+        mostrat=acc_most_len/(1+most_total_len)
 
         # high final score is bad
-        # high accscore is bad
+        # high acc_score is bad
 
         if leastrat==0 or mostrat==0:
             final_score=maxint
         else:
-            final_score=(1+logscale)*accscore/((leastrat*mostrat)**3)
+            final_score=(1+logscale)*acc_score/((leastrat*mostrat)**3)
         
         ret.append(final_score)
     return ret
