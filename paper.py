@@ -162,6 +162,7 @@ import utils
 import bounding_box
 import angles
 import split
+import differences
 
 width=1024
 height=768
@@ -291,8 +292,6 @@ def special_filter(data):
         data['len']=val['len']
         return 1
 
-def proportion(data,sec):
-    return sec['len']/data['len']
 
 def score_cmp(x,y):
     xsc=y[0]
@@ -304,78 +303,6 @@ def score_cmp(x,y):
         return -1
     else:
         return 0
-
-def stroke_difference(a,b):
-    ret=[]
-    len_a=len(a['sec'])
-    len_b=len(b['sec'])
-
-    if len_a>len_b:
-        most,len_most=a,len_a
-        least,len_least=b,len_b
-    else:
-        most,len_most=b,len_b
-        least,len_least=a,len_a
-
-    mosttotallen=most['len']
-    leasttotallen=least['len']
-
-    # and this think needs to be a function called stroke match or something
-    for offset in range(len_most-len_least+1):
-        loghi=minint
-        loglo=maxint
-        accmostlen=0.0
-        accleastlen=0.0
-        accscore=0.0
-        for scan in range(len_least):
-            score=utils.correlate(most['sec'][offset+scan]['resampled'],least['sec'][scan]['resampled'],angles.poldiff)
-            accscore+=score
-
-            mostlen=most['sec'][offset+scan]['len']
-            accmostlen+=mostlen
-
-            leastlen=least['sec'][scan]['len']
-            accleastlen+=leastlen
-
-            lograt=numpy.log(float(mostlen)/float(leastlen))
-            
-            if lograt>loghi:
-                loghi=lograt
-
-            if lograt<loglo:
-                loglo=lograt
-
-        logscale=loghi-loglo
-        leastrat=accleastlen/(1+leasttotallen)
-        mostrat=accmostlen/(1+mosttotallen)
-
-        # high final score is bad
-        # high accscore is bad
-
-        if leastrat==0 or mostrat==0:
-            final_score=maxint
-        else:
-            final_score=(1+logscale)*accscore/((leastrat*mostrat)**3)
-        
-        ret.append(final_score)
-    return ret
-
-def multipart_letter_difference(a,b):
-    a_item=a['item']
-    b_item=b['item']
-    if len(a_item)!=len(b_item):
-        print 'array length mismatch in multipart_letter_difference'
-        sys.exit()
-    ret=[]
-    for perm in itertools.permutations(a_item):
-        score=0
-        for a_stroke,b_stroke in zip(b_item,perm):
-#           pprint.pprint(a_stroke)
-#           pprint.pprint(b_stroke)
-            score+=sorted(stroke_difference(a_stroke,b_stroke))[0]
-        ret.append(score)
-    
-    return ret
 
 def stroke_to_points_set(stroke):
     ret=[]
@@ -420,7 +347,7 @@ def strokes_append(data):
                 continue
             if len(letter['item'])!=multipart_letter_len:
                 continue
-            scores=multipart_letter_difference(multipart_letter,letter)
+            scores=differences.multipart(multipart_letter,letter)
             for score in scores:
                 ret.append((score,0,letter))
         ret.sort(score_cmp)
@@ -434,7 +361,7 @@ def strokes_append(data):
     else:
         for letter in letters:
             item=letter['item'][0]
-            scores=stroke_difference(data,item)
+            scores=differences.stroke(data,item)
             for score in scores:
                 ret.append((score,item,letter))
         ret.sort(score_cmp)
