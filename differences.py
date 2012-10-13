@@ -63,22 +63,15 @@ def stroke(a,b):
     return ret
 
 def multipart(a,b):
-    a_item=a['item']
-    b_item=b['item']
-    if len(a_item)!=len(b_item):
-        print 'array length mismatch in multipart_letter_difference'
-        sys.exit()
     ret=[]
-    for perm in itertools.permutations(a_item):
+    for perm in itertools.permutations(a):
         score=0
-        for a_stroke,b_stroke in zip(b_item,perm):
-#           pprint.pprint(a_stroke)
-#           pprint.pprint(b_stroke)
+        for a_stroke,b_stroke in zip(b,perm):
             score+=sorted(stroke(a_stroke,b_stroke))[0]
         ret.append(score)
     
     return ret
-
+    
 if __name__ == "__main__":
     a={'sec':({'len':155,'resampled':(0,0,0,0,0,0,-0.03,-0.05,-0.05,-0.05,-0.05,-0.05,-0.06,-0.03,0,0)},{'len':183,'resampled':(2.83,2.88,2.84,2.81,2.79,2.79,2.8,2.76,2.72,2.78,2.82,2.82,2.8,2.79,2.74,2.77)},{'len':256,'resampled':(-0.14,-0.13,-0.12,-0.11,-0.1,-0.11,-0.12,-0.12,-0.11,-0.09,-0.09,-0.1,-0.09,-0.08,-0.10500000000000001,0)}),'len':607}
     b={'sec':({'len':155,'resampled':(0,0,0,0,0,0,-0.03,-0.05,-0.05,-0.05,-0.05,-0.05,-0.06,-0.03,0,0)},{'len':183,'resampled':(2.83,2.88,2.84,2.81,2.79,2.79,2.8,2.76,2.72,2.78,2.82,2.82,2.8,2.79,2.74,2.77)},{'len':256,'resampled':(-0.14,-0.13,-0.12,-0.11,-0.1,-0.11,-0.12,-0.12,-0.11,-0.09,-0.09,-0.1,-0.09,-0.08,-0.10500000000000001,0)}),'len':607}

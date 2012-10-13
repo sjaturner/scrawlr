@@ -347,7 +347,7 @@ def strokes_append(data):
                 continue
             if len(letter['item'])!=multipart_letter_len:
                 continue
-            scores=differences.multipart(multipart_letter,letter)
+            scores=differences.multipart(multipart_letter['item'],letter['item'])
             for score in scores:
                 ret.append((score,0,letter))
         ret.sort(score_cmp)
