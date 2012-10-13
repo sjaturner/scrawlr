@@ -103,7 +103,6 @@ function differences_stroke(a,b){
  *   NOTE: when permutation succeeds, the array should be in the original state
  *   on exit!
  */
-
 function permutate(array, callback) {
     // Do the actual permuation work on array[], starting at index
     function p(array, index, callback) {
@@ -145,10 +144,35 @@ function permutate(array, callback) {
     return p(array, 0, callback);
 }
 
+function differences_multipart(a,b){
+   var ret=[];
+   var perms=[];
+   var pi;
+   var score;
+   var bi;
+   var res;
+
+   permutate(a,function(p){
+      perms.push(p.slice(0));
+   });
+
+   for(pi=0;pi<perms.length;++pi){
+      score=0;
+      for(bi=0;bi<b.length;++bi){
+         score+=differences_stroke(perms[pi],b).sort(intcmp)[0];
+      }
+      ret.push(score);
+   }
+
+   return ret;
+}
 
 a={"sec":[{"len":155,"resampled":[0,0,0,0,0,0,-0.03,-0.05,-0.05,-0.05,-0.05,-0.05,-0.06,-0.03,0,0]},{"len":183,"resampled":[2.83,2.88,2.84,2.81,2.79,2.79,2.8,2.76,2.72,2.78,2.82,2.82,2.8,2.79,2.74,2.77]},{"len":256,"resampled":[-0.14,-0.13,-0.12,-0.11,-0.1,-0.11,-0.12,-0.12,-0.11,-0.09,-0.09,-0.1,-0.09,-0.08,-0.10500000000000001,0]}],"len":607}
 b={"sec":[{"len":155,"resampled":[0,0,0,0,0,0,-0.03,-0.05,-0.05,-0.05,-0.05,-0.05,-0.06,-0.03,0,0]},{"len":183,"resampled":[2.83,2.88,2.84,2.81,2.79,2.79,2.8,2.76,2.72,2.78,2.82,2.82,2.8,2.79,2.74,2.77]},{"len":256,"resampled":[-0.14,-0.13,-0.12,-0.11,-0.1,-0.11,-0.12,-0.12,-0.11,-0.09,-0.09,-0.1,-0.09,-0.08,-0.10500000000000001,0]}],"len":607}
 c={"sec":[{"len":155,"resampled":[0,0,0,0,0,0,-0.03,-0.05,-0.05,-0.05,-0.05,-0.05,-0.06,-0.03,0,0]},{"len":256,"resampled":[-0.14,-0.13,-0.12,-0.11,-0.1,-0.11,-0.12,-0.12,-0.11,-0.09,-0.09,-0.1,-0.09,-0.08,-0.10500000000000001,0]}],"len":607}
 
-console.log(differences_stroke(a,c));
+// console.log(differences_stroke(a,c));
+
+console.log(differences_multipart([1,2,3],[7,8,9]));
+
 phantom.exit();
