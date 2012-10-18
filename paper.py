@@ -204,16 +204,16 @@ def stroke_render(s,colour):
         pointlist.append((x,y))
     pygame.draw.lines(screen,colour,False,pointlist,1)
 
-last_data=None # just used to show the normalised angle data for the most recent stroke
+#last_data=None # just used to show the normalised angle data for the most recent stroke
 
-def section_render(section,x,y,colour):
-    pygame.draw.rect(screen,ink_colour,((x,y),(32,int(4*numpy.pi))),1)
-    off=0
-    for val in section:
-        lx=int(x+off*2)
-        ly=int(y+2*(val%(2*numpy.pi)))
-        pygame.draw.circle(screen,colour,(lx,ly),1,0)
-        off+=1
+#def section_render(section,x,y,colour):
+#    pygame.draw.rect(screen,ink_colour,((x,y),(32,int(4*numpy.pi))),1)
+#    off=0
+#    for val in section:
+#        lx=int(x+off*2)
+#        ly=int(y+2*(val%(2*numpy.pi)))
+#        pygame.draw.circle(screen,colour,(lx,ly),1,0)
+#        off+=1
 
 def find_letter(bbox): # becomes some sort of iterator perhaps
     for letter in letters:
@@ -238,11 +238,11 @@ def render():
     colgap=width
     screen.fill(paper_colour)
 
-    if last_data:
-        ix=0
-        for sec in last_data['sec']:
-            section_render(sec['resampled'],ix,0,0x80)
-            ix+=34
+#    if last_data:
+#        ix=0
+#        for sec in last_data['sec']:
+#            section_render(sec['resampled'],ix,0,0x80)
+#            ix+=34
 
     for y in range(0,height,linegap):
         oy=y-orgy%linegap
@@ -317,7 +317,7 @@ def stroke_to_points_set(stroke):
     return set(ret)
 
 def strokes_append(data):
-    global last_data
+#   global last_data
     if not special_filter(data):
         # probably too short
         return
@@ -325,7 +325,7 @@ def strokes_append(data):
     ret=[]
     data['time']=paper_time()
 
-    last_data=data
+#   last_data=data
 
     multipart_letter=None
     for stroke in strokes:
