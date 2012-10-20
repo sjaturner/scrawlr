@@ -121,6 +121,8 @@ function distangle(stroke){
    var pi=Math.PI;
    var old_x;
    var old_y;
+   var old_t=0;
+   var angle=0;
 
    for(index=0;index<stroke.length;++index){
       var x=stroke[index][0]
@@ -134,8 +136,6 @@ function distangle(stroke){
          var dy=y-old_y;
          var r=Math.sqrt(dx*dx+dy*dy);
          if(r>0){
-            var angle=0;
-            var old_t=0;
 
             acc_x+=r;
 
@@ -158,6 +158,7 @@ function distangle(stroke){
                angle+=delta_t;
             }
             ret.push([acc_x|0,angle]);
+            old_t=t;
          }
       }
 
@@ -458,12 +459,10 @@ function salient(points){
 
    median_filtered=gap_delta(gap,uniq_points);
 
-
    for(i=0;i<uniq_points.length;++i){
       y=uniq_points[i];
 
       t=median_filtered[i]<threshold;
-
 
       if(state=='up' && !t){
          sec.push({'len':acc.length,'resampled':resample(acc,nsample)});
