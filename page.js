@@ -101,7 +101,7 @@ $(document).ready(function(){
       function resample(a,n){
          var d=a;
          var i=0;
-         var step=a.length/n;
+         var step=0;
          var base=0.0;
          var ret=[];
          var slice=[]
@@ -115,9 +115,12 @@ $(document).ready(function(){
             a=d;
          }
 
+         step=a.length/n;
+
          while(base<a.length){
             var slice=a.slice(base|0,(base+step)|0);
             ret.push(middle(slice));
+
             base+=step;
          }
 
