@@ -9,7 +9,6 @@
 //    then bucket median filter stuff
 $(document).ready(function(){
 
-
    function paper(){
       var that=this;
       var canvas;
