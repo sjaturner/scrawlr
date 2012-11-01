@@ -29,10 +29,25 @@ $(document).ready(function(){
          var val=salient(stroke.stroke);
          var multipart_letter=null;
          var i=0;
+         var stroke_point_set={}; 
 
          for(i=0;i<that.strokes.length;++i){
-            
-             
+            if(bounding_box_overlaps(stroke.bbox,strokes[i].bbox)){
+               if(!stroke_point_set){
+                  stroke_to_point_set=stroke_to_point_set(stroke.stroke);
+               }
+
+               if(intersects(stroke_point_set,stroke_to_point_set(strokes[i].stroke)))){
+                  multipart_letter=strokes[i].letter;
+                  break;
+                  /* contact */
+               }
+            }
+         }
+
+         if(multipart_letter){
+         }
+         else{
          }
 
          stroke.time=(new Date).getTime();
