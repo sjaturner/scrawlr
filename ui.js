@@ -27,6 +27,15 @@ $(document).ready(function(){
 
       function strokes_append(stroke){
          var val=salient(stroke.stroke);
+         var multipart_letter=null;
+         var i=0;
+
+         for(i=0;i<that.strokes.length;++i){
+            
+             
+         }
+
+         stroke.time=(new Date).getTime();
 
          console.log(val);
 
