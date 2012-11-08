@@ -348,9 +348,9 @@ def strokes_append(data):
             if len(letter['item'])!=multipart_letter_len:
                 continue
             for score in differences.multipart(multipart_letter['item'],letter['item']):
-                ret.append((score,0,letter))
+                ret.append((score,letter))
         ret.sort(score_cmp)
-        for (score,item,letter) in ret:
+        for (score,letter) in ret:
             if 'char' in letter and 'type' in letter['char'] and letter['char']['type']=='told':
                 print 'm',score,letter['char']['val']
 
@@ -361,13 +361,13 @@ def strokes_append(data):
         for letter in letters:
             item=letter['item'][0]
             for score in differences.stroke(data,item):
-                ret.append((score,item,letter))
+                ret.append((score,letter))
         ret.sort(score_cmp)
 
         new_letter={}
         new_letter['item']=[data]
 
-        for (score,item,letter) in ret:
+        for (score,letter) in ret:
             if len(letter['item'])!=1:
                 continue
 
