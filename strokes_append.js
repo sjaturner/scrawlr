@@ -15,13 +15,13 @@ function strokes_append(that,stroke){
    stroke.time=(new Date).getTime();
 
    for(i=0;i<that.strokes.length;++i){
-      if(bounding_box_overlaps(stroke.bbox,strokes[i].bbox)){
+      if(bounding_box_overlaps(stroke.bbox,that.strokes[i].bbox)){
          if(!stroke_point_set){
             stroke_to_point_set=stroke_to_point_set(stroke.stroke);
          }
 
-         if(intersects(stroke_point_set,stroke_to_point_set(strokes[i].stroke)))){
-            multipart_letter=strokes[i].letter;
+         if(intersects(stroke_point_set,stroke_to_point_set(that.strokes[i].stroke))){
+            multipart_letter=that.strokes[i].letter;
             break;
             /* contact */
          }
@@ -77,12 +77,8 @@ function strokes_append(that,stroke){
       }
    }
 
-   console.log(val);
-
-   /* 
    stroke.sec=val.sec;
    stroke.len=val.len;
-   */
 
    that.strokes.push(stroke);
 }
