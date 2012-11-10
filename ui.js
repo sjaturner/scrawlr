@@ -22,105 +22,11 @@ $(document).ready(function(){
       var current_stroke=null;
       var dorg=null;
       this.strokes=[];
+      this.letters=[];
 
       /* #include "engine.js" */
+      /* #include "stroke_append.js" */
 
-      function strokes_append(stroke){
-         var val=salient(stroke.stroke);
-         var multipart_letter=null;
-         var i=0;
-         var stroke_point_set={}; 
-         var multipart_letter_len=0;
-         var letter_index=0;
-         var letter=null;
-         var score_index=0;
-         var differences=[];
-         var score_table=[];
-         var score=0;
-         var item=[];
-
-         stroke.time=(new Date).getTime();
-
-         for(i=0;i<that.strokes.length;++i){
-            if(bounding_box_overlaps(stroke.bbox,strokes[i].bbox)){
-               if(!stroke_point_set){
-                  stroke_to_point_set=stroke_to_point_set(stroke.stroke);
-               }
-
-               if(intersects(stroke_point_set,stroke_to_point_set(strokes[i].stroke)))){
-                  multipart_letter=strokes[i].letter;
-                  break;
-                  /* contact */
-               }
-            }
-         }
-
-         if(multipart_letter){
-            multipart_letter.item.push(stroke);
-            stroke.letter=multipart_letter;
-            multipart_letter_len=multipart_letter.item.length;
-
-            for(letter_index=0;letter_index<letters.length;++letter_index){
-               letter=letters[letter_index];
-               if(letter==multipart_letter){
-                  continue;
-               }
-               else if(letter.item.length!=multipart_letter_len){
-                  continue;
-               }
-               else
-               {
-                  differences=differences_multipart(multipart_letter.item,letter.item);
-
-                  for(score_index=0;score_index<differences.length;++score_index){
-                     score_table.push([differences[score_index],0,letter]);
-                  }
-               }
-            }
-
-            score_table=score_table.sort();
-
-            for(score_index=0;score_index<score_table.length;++score_index){
-               score=score_table[score_index][0];
-               /* index one is degenerate */
-               letter=score_table[score_index][2];
-
-               if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
-                  console.log('#',score,letter.char.val);
-
-                  multipart_letter.char={'type':'guess','val':letter.char.val};
-               }
-            }
-         }
-         else{
-            for(letter_index=0;letter_index<letters.length;++letter_index){
-               letter=letters[letter_index];
-               item=letter.item[0];
-
-               differences=differences_stroke(stroke,item);
-               for(score_index=0;score_index<differences.length;++score_index){
-                  score_table.push([differences[score_index],item,letter]);
-               }
-            }
-         }
-
-         console.log(val);
-
-         /* 
-         if(!val){
-            console.log('fail');
-            return;
-         }
-         else[
-            console.log('here');
-         }
-         
-         stroke.sec=val.sec;
-         stroke.len=val.len;
-         */
-
-         that.strokes.push(stroke);
-      }
 
       function stroke_render(stroke,colour){
          if(stroke.length<2){
@@ -294,7 +200,7 @@ $(document).ready(function(){
                }
                
                if(draw){ // finish draw
-                  strokes_append({'stroke':that.current_stroke,'bbox':bounding_box_make(that.current_stroke)})
+                  strokes_append(that,{'stroke':that.current_stroke,'bbox':bounding_box_make(that.current_stroke)})
 
                   that.current_stroke=null;
                   draw=0;
