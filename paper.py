@@ -285,6 +285,7 @@ def current_stroke_append(pos):
 
 def special_filter(data):
     val=split.salient(data['stroke'])
+    print simplejson.JSONEncoder().encode(val)
     if not val:
         return 0
     else:
@@ -506,3 +507,4 @@ if len(sys.argv)==3:
     outobj['orgx']=orgx
     outobj['orgy']=orgy
     pickle.dump(outobj,f)
+
