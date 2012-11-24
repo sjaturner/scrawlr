@@ -14,8 +14,8 @@ page.evaluate(function() {
 
    function draw_sections(ctx,sec){
       var i=0;
-      var x=100;
-      var y=100;
+      var xx=100;
+      var yy=100;
 
       for(i=0;i<sec.length;++i){
          var len=sec[i].len;
@@ -23,27 +23,38 @@ page.evaluate(function() {
          var j=0;
 
          ctx.beginPath();
-         ctx.moveTo(x,y);
+         ctx.moveTo(xx,yy);
 
          for(j=0;j<seg.length;++j){
             var theta=seg[j];
 
-            x+=Math.sin(theta)*len;
-            y+=Math.cos(theta)*len;
-            ctx.lineTo(x,y);
+            if(1){
+               xx+=len/seg.length*Math.cos(theta);
+               yy+=len/seg.length*Math.sin(theta);
+            }
+
+            if(1){
+               ctx.lineTo(xx,yy);
+            }
+            else{
+               ctx.moveTo(10,10);
+               ctx.lineTo(20,20);
+            }
+
          }
 
          ctx.strokeStyle = "#000000";
          ctx.stroke();
+
+         if(0){
+            ctx.beginPath();
+            ctx.moveTo(10,10);
+            ctx.lineTo(20,20);
+            ctx.strokeStyle = "#000000";
+            ctx.stroke();
+         }
       }
 
-      if(1){
-         ctx.beginPath();
-         ctx.moveTo(10,10);
-         ctx.lineTo(20,20);
-         ctx.strokeStyle = "#000000";
-         ctx.stroke();
-      }
    }
 
    draw_sections(ctx,a.sec);
