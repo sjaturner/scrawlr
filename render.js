@@ -10,7 +10,9 @@ page.evaluate(function() {
    var height = window.innerHeight
    var yo=height/2;
 
-   function draw_sections(ctx,sec){
+   var colour=['#ffff00','#ff00ff','#00ffff']
+
+   function draw_sections(ctx,sec,scale_noise,rotate_noise,rotate){
       var i=0;
       var xx=xo;
       var yy=yo;
@@ -24,20 +26,21 @@ page.evaluate(function() {
          ctx.moveTo(xx,yy);
 
          for(j=0;j<seg.length;++j){
-            var theta=seg[j];
+            var theta=seg[j]+rotate+(Math.random()-0.5)*rotate_noise;
+            var mag=Math.abs(len/seg.length*(1+(Math.random()-0.5)*scale_noise));
 
-            xx+=len/seg.length*Math.cos(theta);
-            yy+=len/seg.length*Math.sin(theta);
+            xx+=mag*Math.cos(theta);
+            yy+=mag*Math.sin(theta);
 
             ctx.lineTo(xx,yy);
          }
 
-         ctx.strokeStyle = "#000000";
+         ctx.strokeStyle = colour[i%colour.length];
          ctx.stroke();
       }
    }
 
-   draw_sections(ctx,a.sec);
+   draw_sections(ctx,a.sec,0,0.5,0.2*(Math.random()-0.5));
 
    document.body.style.backgroundColor = 'white';
    document.body.style.margin = '0px';
@@ -46,3 +49,7 @@ page.evaluate(function() {
 page.render('colorwheel.png');
 
 phantom.exit();
+
+// scale noise
+// rotate noise
+// rotate
