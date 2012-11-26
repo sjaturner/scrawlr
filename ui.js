@@ -11,6 +11,7 @@ $(document).ready(function(){
 
    function paper(){
       var that=this;
+      var paper_this=this;
       var canvas;
       var ctx; 
       var tool;
@@ -21,12 +22,12 @@ $(document).ready(function(){
       this.orgy=0;
       var current_stroke=null;
       var dorg=null;
-      this.strokes=[];
-      this.letters=[];
+
+      that.strokes=[];
+      that.letters=[];
 
       /* #include "engine.js" */
-      /* #include "stroke_append.js" */
-
+      /* #include "strokes_append.js" */
 
       function stroke_render(stroke,colour){
          if(stroke.length<2){
@@ -200,7 +201,7 @@ $(document).ready(function(){
                }
                
                if(draw){ // finish draw
-                  strokes_append(that,{'stroke':that.current_stroke,'bbox':bounding_box_make(that.current_stroke)})
+                  strokes_append(paper_this,{'stroke':that.current_stroke,'bbox':bounding_box_make(that.current_stroke)})
 
                   that.current_stroke=null;
                   draw=0;
