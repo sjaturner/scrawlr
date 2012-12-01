@@ -25,6 +25,7 @@ $(document).ready(function(){
 
       that.strokes=[];
       that.letters=[];
+      that.focus=null;
 
       /* #include "engine.js" */
       /* #include "strokes_append.js" */

@@ -14,69 +14,90 @@ function strokes_append(that,stroke){
 
    stroke.time=(new Date).getTime();
 
-   if(1){
-      for(i=0;i<that.strokes.length;++i){
-         if(bounding_box_overlaps(stroke.bbox,that.strokes[i].bbox)){
-            if(!stroke_point_set){
-               stroke_to_point_set=stroke_to_point_set(stroke.stroke);
-            }
+   for(i=0;i<that.strokes.length;++i){
+      if(bounding_box_overlaps(stroke.bbox,that.strokes[i].bbox)){
+         if(!stroke_point_set){
+            stroke_to_point_set=stroke_to_point_set(stroke.stroke);
+         }
 
-            if(intersects(stroke_point_set,stroke_to_point_set(that.strokes[i].stroke))){
-               multipart_letter=that.strokes[i].letter;
-               break;
-               /* contact */
-            }
+         if(intersects(stroke_point_set,stroke_to_point_set(that.strokes[i].stroke))){
+            multipart_letter=that.strokes[i].letter;
+            break;
+            /* contact */
          }
       }
+   }
 
-      if(multipart_letter){
-         multipart_letter.item.push(stroke);
-         stroke.letter=multipart_letter;
-         multipart_letter_len=multipart_letter.item.length;
+   if(multipart_letter){
+      multipart_letter.item.push(stroke);
+      stroke.letter=multipart_letter;
+      multipart_letter_len=multipart_letter.item.length;
 
-         for(letter_index=0;letter_index<that.letters.length;++letter_index){
-            letter=that.letters[letter_index];
-            if(letter==multipart_letter){
-               continue;
-            }
-            else if(letter.item.length!=multipart_letter_len){
-               continue;
-            }
-            else
-            {
-               differences=differences_multipart(multipart_letter.item,letter.item);
-
-               for(score_index=0;score_index<differences.length;++score_index){
-                  score_table.push([differences[score_index],0,letter]);
-               }
-            }
+      for(letter_index=0;letter_index<that.letters.length;++letter_index){
+         letter=that.letters[letter_index];
+         if(letter==multipart_letter){
+            continue;
          }
-
-         score_table=score_table.sort();
-
-         for(score_index=0;score_index<score_table.length;++score_index){
-            score=score_table[score_index][0];
-            /* index one is degenerate */
-            letter=score_table[score_index][2];
-
-            if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
-               console.log('#',score,letter.char.val);
-
-               multipart_letter.char={'type':'guess','val':letter.char.val};
-            }
+         else if(letter.item.length!=multipart_letter_len){
+            continue;
          }
-      }
-      else{
-         for(letter_index=0;letter_index<that.letters.length;++letter_index){
-            letter=that.letters[letter_index];
-            item=letter.item[0];
+         else
+         {
+            differences=differences_multipart(multipart_letter.item,letter.item);
 
-            differences=differences_stroke(stroke,item);
             for(score_index=0;score_index<differences.length;++score_index){
-               score_table.push([differences[score_index],item,letter]);
+               score_table.push([differences[score_index],letter]);
             }
          }
       }
+
+      score_table=score_table.sort();
+
+      for(score_index=0;score_index<score_table.length;++score_index){
+         score=score_table[score_index][0];
+         /* index one is degenerate */
+         letter=score_table[score_index][1];
+
+         if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
+            console.log('#',score,letter.char.val);
+
+            multipart_letter.char={'type':'guess','val':letter.char.val};
+         }
+      }
+   }
+   else{
+      var new_letter={};
+
+      for(letter_index=0;letter_index<that.letters.length;++letter_index){
+         letter=that.letters[letter_index];
+         item=letter.item[0];
+
+         differences=differences_stroke(stroke,item);
+         for(score_index=0;score_index<differences.length;++score_index){
+            score_table.push([differences[score_index],letter]);
+         }
+      }
+
+      score_table=score_table.sort();
+      new_letter.item=[stroke];
+
+      for(i=0;i<score_table.length;++i){
+         score=score_table[i][0];
+         letter=score_table[i][1];
+
+         if(letter.length!=1){
+            continue;
+         }
+
+         if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='tod'){
+            new_letter.char={'type':'guess','val':letter.char.val};
+         }
+      }
+
+      stroke.letter=new_letter;
+      that.focus=new_letter;
+
+      that.letters.push(new_letter);
    }
 
    stroke.sec=val.sec;
