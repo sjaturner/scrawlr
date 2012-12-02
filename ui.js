@@ -93,6 +93,10 @@ $(document).ready(function(){
          }
       }
 
+      document.onkeydown=function(event){
+         console.log('onkeydown');
+      }
+
       this.init=function(){
          canvas=$('#a_canvas')[0];
          if(!canvas){
