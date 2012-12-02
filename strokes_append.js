@@ -13,6 +13,8 @@ function strokes_append(that,stroke){
    var item=[];
 
    stroke.time=(new Date).getTime();
+   stroke.sec=val.sec;
+   stroke.len=val.len;
 
    for(i=0;i<that.strokes.length;++i){
       if(bounding_box_overlaps(stroke.bbox,that.strokes[i].bbox)){
@@ -31,6 +33,7 @@ function strokes_append(that,stroke){
    if(multipart_letter){
       multipart_letter.item.push(stroke);
       stroke.letter=multipart_letter;
+      that.focus=multipart_letter;;
       multipart_letter_len=multipart_letter.item.length;
 
       for(letter_index=0;letter_index<that.letters.length;++letter_index){
@@ -59,7 +62,6 @@ function strokes_append(that,stroke){
          letter=score_table[score_index][1];
 
          if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
-            console.log('#',score,letter.char.val);
 
             multipart_letter.char={'type':'guess','val':letter.char.val};
          }
@@ -100,10 +102,5 @@ function strokes_append(that,stroke){
       that.letters.push(new_letter);
    }
 
-   stroke.sec=val.sec;
-   stroke.len=val.len;
-
-   console.log(that);
-   console.log(that.strokes);
    that.strokes.push(stroke);
 }

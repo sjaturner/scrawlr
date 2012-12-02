@@ -30,6 +30,18 @@ $(document).ready(function(){
       /* #include "engine.js" */
       /* #include "strokes_append.js" */
 
+      function stroke_in_focus(stroke,focus){
+         var i=0;
+  
+         for(i=0;i<focus.item.length;++i){
+            if(focus.item[i].stroke==stroke){
+               return true;
+            }
+         }
+
+         return false;
+      }
+
       function stroke_render(stroke,colour){
          if(stroke.length<2){
             return;
@@ -46,13 +58,18 @@ $(document).ready(function(){
                ctx.moveTo(x,y);
             }
          }
-         ctx.strokeStyle = "#000000";
+         ctx.strokeStyle = colour;
          ctx.stroke();
       }
 
       function render(){
          var linegap=40;
          var y=0;
+         var focus="#ff0000";
+         var black="#000000";
+         var colour="";
+
+         console.log(that.focus);
 
          canvas.width = canvas.width;
 
@@ -68,11 +85,11 @@ $(document).ready(function(){
          }
 
          for(var i=0;i<that.strokes.length;++i){
-            stroke_render(that.strokes[i].stroke,0);
+            stroke_render(that.strokes[i].stroke,stroke_in_focus(that.strokes[i].stroke,that.focus)?focus:black);
          }
 
          if(current_stroke){
-            stroke_render(current_stroke,0);
+            stroke_render(current_stroke,stroke_in_focus(current_stroke,that.focus)?focus:black);
          }
       }
 
@@ -203,6 +220,7 @@ $(document).ready(function(){
                
                if(draw){ // finish draw
                   strokes_append(paper_this,{'stroke':that.current_stroke,'bbox':bounding_box_make(that.current_stroke)})
+                  render();
 
                   that.current_stroke=null;
                   draw=0;
