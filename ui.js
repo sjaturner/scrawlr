@@ -69,8 +69,6 @@ $(document).ready(function(){
          var black="#000000";
          var colour="";
 
-         console.log(that.focus);
-
          canvas.width = canvas.width;
 
          for(y=0;y<height;y+=linegap)
@@ -95,7 +93,6 @@ $(document).ready(function(){
 
       document.onkeydown=function(event){
          var code=('which' in event)?event.which:event.keyCode;
-         console.log('onkeydown',code);
          paper_this.focus.char={'type':'told','val':code};
       }
 

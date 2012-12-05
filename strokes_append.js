@@ -1,3 +1,7 @@
+function score_sort(a,b){
+   return -a[0]+b[0];
+}
+
 function strokes_append(that,stroke){
    var val=salient(stroke.stroke);
    var multipart_letter=null;
@@ -54,27 +58,31 @@ function strokes_append(that,stroke){
          }
       }
 
-      score_table=score_table.sort();
+      score_table=score_table.sort(score_sort);
 
       for(score_index=0;score_index<score_table.length;++score_index){
          score=score_table[score_index][0];
-         /* index one is degenerate */
          letter=score_table[score_index][1];
 
          if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
-
             multipart_letter.char={'type':'guess','val':letter.char.val};
-            console.log('multipart',multipart_letter.char.val);
          }
+      }
+
+      if(multipart_letter.hasOwnProperty('char')){
+         console.log('multipart',multipart_letter.char.val);
       }
    }
    else{
       var new_letter={};
 
-      console.log('single');
       for(letter_index=0;letter_index<that.letters.length;++letter_index){
          letter=that.letters[letter_index];
          item=letter.item[0];
+
+         if(letter.item.length!=1){
+            continue;
+         }
 
          differences=differences_stroke(stroke,item);
          for(score_index=0;score_index<differences.length;++score_index){
@@ -82,23 +90,21 @@ function strokes_append(that,stroke){
          }
       }
 
-      score_table=score_table.sort();
+      score_table=score_table.sort(score_sort);
+
       new_letter.item=[stroke];
 
       for(i=0;i<score_table.length;++i){
          score=score_table[i][0];
          letter=score_table[i][1];
 
-         if(letter.item.length!=1){
-            continue;
-         }
-
-         console.log('letter.char',letter.char);
-
          if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
             new_letter.char={'type':'guess','val':letter.char.val};
-            console.log('onepart',new_letter.char.val);
          }
+      }
+
+      if(new_letter.hasOwnProperty('char')){
+         console.log('onepart',new_letter.char.val);
       }
 
       stroke.letter=new_letter;
