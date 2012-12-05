@@ -153,6 +153,7 @@ $(document).ready(function(){
                if(that.down.time){
                   first=1;
 
+                  that.dloc=[ev._x, ev._y];
                   if(that.down.drag){
                      that.dorg=[ev._x, ev._y];
                      drag=1;
@@ -188,7 +189,7 @@ $(document).ready(function(){
                }
                that.current_stroke.push([ev._x+paper.orgx, ev._y+paper.orgy]);
 
-               ctx.strokeStyle = "#000000";
+               ctx.strokeStyle = "#000001";
                ctx.stroke();
             }
 
@@ -208,13 +209,21 @@ $(document).ready(function(){
             if('down' in that){
                that.mousemove(ev);
 
-               if(drag){ // finish drag 
+               if(drag){ 
                   var x=that.dorg[0]-ev._x;
                   var y=that.dorg[1]-ev._y;
+                  var xdloc=that.dloc[0];
+                  var ydloc=that.dloc[1];
+                  var dx=ev._x-xdloc;
+                  var dy=ev._y-ydloc;
+                  var r=Math.sqrt(dx*dx+dy*dy);
 
+                  if(r<5){
+                     console.log('focus',ev._x+paper.orgx, ev._y+paper.orgy);
+                  }
+                  
                   paper.orgx+=x;
                   paper.orgy+=y;
-
 
                   that.dorg=[ev._x, ev._y];
                   render();
