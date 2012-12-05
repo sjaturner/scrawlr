@@ -70,7 +70,7 @@ function strokes_append(that,stroke){
       }
 
       if(multipart_letter.hasOwnProperty('char')){
-         console.log('multipart',multipart_letter.char.val);
+         console.log('multipart',String.fromCharCode(multipart_letter.char.val));
       }
    }
    else{
@@ -104,7 +104,7 @@ function strokes_append(that,stroke){
       }
 
       if(new_letter.hasOwnProperty('char')){
-         console.log('onepart',new_letter.char.val);
+         console.log('onepart',String.fromCharCode(new_letter.char.val));
       }
 
       stroke.letter=new_letter;
