@@ -64,12 +64,14 @@ function strokes_append(that,stroke){
          if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
 
             multipart_letter.char={'type':'guess','val':letter.char.val};
+            console.log('multipart',multipart_letter.char.val);
          }
       }
    }
    else{
       var new_letter={};
 
+      console.log('single');
       for(letter_index=0;letter_index<that.letters.length;++letter_index){
          letter=that.letters[letter_index];
          item=letter.item[0];
@@ -87,12 +89,15 @@ function strokes_append(that,stroke){
          score=score_table[i][0];
          letter=score_table[i][1];
 
-         if(letter.length!=1){
+         if(letter.item.length!=1){
             continue;
          }
 
-         if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='tod'){
+         console.log('letter.char',letter.char);
+
+         if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
             new_letter.char={'type':'guess','val':letter.char.val};
+            console.log('onepart',new_letter.char.val);
          }
       }
 
@@ -108,14 +113,12 @@ function strokes_append(that,stroke){
 function focus_letter(that,x,y){
    var letter_index=0;
    var point_bbox=[[x-1,y-1],[x+1,y+1]];
-   console.log('focus',x,y);
 
    for(letter_index=0;letter_index<that.letters.length;++letter_index){
       var letter=that.letters[letter_index];
       var stroke_index=0;
       for(stroke_index=0;stroke_index<letter.item.length;++stroke_index){
          if(bounding_box_overlaps(letter.item[stroke_index].bbox,point_bbox)){
-            console.log('found');
             return letter;
          }
       }

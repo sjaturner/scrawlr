@@ -94,7 +94,9 @@ $(document).ready(function(){
       }
 
       document.onkeydown=function(event){
-         console.log('onkeydown');
+         var code=('which' in event)?event.which:event.keyCode;
+         console.log('onkeydown',code);
+         paper_this.focus.char={'type':'told','val':code};
       }
 
       this.init=function(){
