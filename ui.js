@@ -219,7 +219,7 @@ $(document).ready(function(){
                   var r=Math.sqrt(dx*dx+dy*dy);
 
                   if(r<5){
-                     console.log('focus',ev._x+paper.orgx, ev._y+paper.orgy);
+                     paper_this.focus=focus_letter(paper_this,ev._x+paper.orgx, ev._y+paper.orgy);
                   }
                   
                   paper.orgx+=x;

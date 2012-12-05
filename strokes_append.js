@@ -104,3 +104,21 @@ function strokes_append(that,stroke){
 
    that.strokes.push(stroke);
 }
+
+function focus_letter(that,x,y){
+   var letter_index=0;
+   var point_bbox=[[x-1,y-1],[x+1,y+1]];
+   console.log('focus',x,y);
+
+   for(letter_index=0;letter_index<that.letters.length;++letter_index){
+      var letter=that.letters[letter_index];
+      var stroke_index=0;
+      for(stroke_index=0;stroke_index<letter.item.length;++stroke_index){
+         if(bounding_box_overlaps(letter.item[stroke_index].bbox,point_bbox)){
+            console.log('found');
+            return letter;
+         }
+      }
+   }
+   return null;
+}
