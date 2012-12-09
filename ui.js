@@ -90,11 +90,12 @@ $(document).ready(function(){
 
             if(this_stroke.hasOwnProperty('letter')){
                if(this_stroke.letter.hasOwnProperty('bbox')){
-                  var bbox=this_stroke.letter.bbox;
-                  var minx=bbox[0][0];
-                  var miny=bbox[0][1];
-                  var maxx=bbox[1][0];
-                  var maxy=bbox[1][1];
+                  var letter=this_stroke.letter;
+                  var bbox=letter.bbox;
+                  var minx=bbox[0][0]-that.orgx;
+                  var miny=bbox[0][1]-that.orgy;
+                  var maxx=bbox[1][0]-that.orgx;
+                  var maxy=bbox[1][1]-that.orgy;
 
                   ctx.beginPath();
                   ctx.moveTo(minx,miny);
@@ -104,6 +105,19 @@ $(document).ready(function(){
                   ctx.lineTo(minx,miny);
                   ctx.strokeStyle = "#808080";
                   ctx.stroke();
+                  if(letter.hasOwnProperty('char')){
+                     if(letter.char.type=='told'){
+                        ctx.strokeStyle = 'green';
+                     }
+                     else{
+                        ctx.strokeStyle = 'blue';
+                     }
+
+                     ctx.strokeText(String.fromCharCode(letter.char.val),minx,miny);
+                  }
+                  else{
+                     ctx.strokeText('?',minx,miny);
+                  }
                }
             }
          }
@@ -113,9 +127,37 @@ $(document).ready(function(){
          }
       }
 
-      document.onkeydown=function(event){
-         var code=('which' in event)?event.which:event.keyCode;
+      document.onkeydown=function(event){ /* this is so crap, fix it */
+         var code;
+         if('which' in event){
+            code=event.which;
+            if('shiftKey' in event){
+               if(code==16){
+                  return;
+               }
+               if(event.shiftKey){
+               }
+               else{
+                  code+=32;
+               }
+            }
+         }
+         else{
+            code=event.keyCode;
+            if('shiftKey' in event){
+               if(code==16){
+                  return;
+               }
+               if(event.shiftKey){
+               }
+               else{
+                  code+=32;
+               }
+            }
+         }
+
          paper_this.focus.char={'type':'told','val':code};
+         render();
       }
 
       this.init=function(){
