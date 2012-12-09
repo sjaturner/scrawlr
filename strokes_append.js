@@ -37,7 +37,7 @@ function strokes_append(that,stroke){
 
    if(multipart_letter){
       multipart_letter.item.push(stroke);
-      multipart_letter.bbox=bounding_box_extend(multipart_letter.bbox,stroke);
+      multipart_letter.bbox=bounding_box_extend(multipart_letter.bbox,stroke.stroke);
 
       stroke.letter=multipart_letter;
       that.focus=multipart_letter;;

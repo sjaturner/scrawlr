@@ -42,32 +42,33 @@ $(document).ready(function(){
          return false;
       }
 
-      function stroke_render(stroke,colour){
-         if(stroke.length<2){
-            return;
-         }
-         ctx.beginPath();
-         for(var i=0;i<stroke.length;++i){
-            var x=stroke[i][0]-that.orgx;
-            var y=stroke[i][1]-that.orgy;
-
-            if(i){
-               ctx.lineTo(x,y);
-            }
-            else{
-               ctx.moveTo(x,y);
-            }
-         }
-         ctx.strokeStyle = colour;
-         ctx.stroke();
-      }
-
       function render(){
          var linegap=40;
          var y=0;
          var focus="#ff0000";
          var black="#000000";
          var colour="";
+
+         function stroke_render(stroke,colour){
+            if(stroke.length<2){
+               return;
+            }
+
+            ctx.beginPath();
+            for(var i=0;i<stroke.length;++i){
+               var x=stroke[i][0]-that.orgx;
+               var y=stroke[i][1]-that.orgy;
+
+               if(i){
+                  ctx.lineTo(x,y);
+               }
+               else{
+                  ctx.moveTo(x,y);
+               }
+            }
+            ctx.strokeStyle = colour;
+            ctx.stroke();
+         }
 
          canvas.width = canvas.width;
 
@@ -83,7 +84,28 @@ $(document).ready(function(){
          }
 
          for(var i=0;i<that.strokes.length;++i){
-            stroke_render(that.strokes[i].stroke,stroke_in_focus(that.strokes[i].stroke,that.focus)?focus:black);
+            var this_stroke=that.strokes[i];
+
+            stroke_render(this_stroke.stroke,stroke_in_focus(that.strokes[i].stroke,that.focus)?focus:black);
+
+            if(this_stroke.hasOwnProperty('letter')){
+               if(this_stroke.letter.hasOwnProperty('bbox')){
+                  var bbox=this_stroke.letter.bbox;
+                  var minx=bbox[0][0];
+                  var miny=bbox[0][1];
+                  var maxx=bbox[1][0];
+                  var maxy=bbox[1][1];
+
+                  ctx.beginPath();
+                  ctx.moveTo(minx,miny);
+                  ctx.lineTo(minx,maxy);
+                  ctx.lineTo(maxx,maxy);
+                  ctx.lineTo(maxx,miny);
+                  ctx.lineTo(minx,miny);
+                  ctx.strokeStyle = "#808080";
+                  ctx.stroke();
+               }
+            }
          }
 
          if(current_stroke){
