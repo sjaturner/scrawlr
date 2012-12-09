@@ -301,11 +301,11 @@ function bounding_box_overlaps(a,b){
    }
 }
 
-function bounding_box_make(s){
-   var minx=Number.MAX_VALUE;
-   var miny=Number.MAX_VALUE;
-   var maxx=Number.MIN_VALUE;
-   var maxy=Number.MIN_VALUE;
+function bounding_box_extend(bbox,s){
+   var minx=bbox[0][0];
+   var miny=bbox[0][1];
+   var maxx=bbox[1][0];
+   var maxy=bbox[1][1];
 
    var index;
 
@@ -328,6 +328,15 @@ function bounding_box_make(s){
    }
 
    return [[minx,miny],[maxx,maxy]]
+}
+
+function bounding_box_make(s){
+   var minx=Number.MAX_VALUE;
+   var miny=Number.MAX_VALUE;
+   var maxx=Number.MIN_VALUE;
+   var maxy=Number.MIN_VALUE;
+
+   return bounding_box_extend([[Number.MAX_VALUE,Number.MAX_VALUE],[Number.MIN_VALUE,Number.MIN_VALUE]],s);
 }
 
 function clean_distangle(graph){

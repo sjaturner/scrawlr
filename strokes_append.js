@@ -19,6 +19,7 @@ function strokes_append(that,stroke){
    stroke.time=(new Date).getTime();
    stroke.sec=val.sec;
    stroke.len=val.len;
+   stroke.bbox=bounding_box_make(stroke.stroke);
 
    for(i=0;i<that.strokes.length;++i){
       if(bounding_box_overlaps(stroke.bbox,that.strokes[i].bbox)){
@@ -36,6 +37,8 @@ function strokes_append(that,stroke){
 
    if(multipart_letter){
       multipart_letter.item.push(stroke);
+      multipart_letter.bbox=bounding_box_extend(multipart_letter.bbox,stroke);
+
       stroke.letter=multipart_letter;
       that.focus=multipart_letter;;
       multipart_letter_len=multipart_letter.item.length;
@@ -93,6 +96,7 @@ function strokes_append(that,stroke){
       score_table=score_table.sort(score_sort);
 
       new_letter.item=[stroke];
+      new_letter.bbox=stroke.bbox;
 
       for(i=0;i<score_table.length;++i){
          score=score_table[i][0];

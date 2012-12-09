@@ -231,7 +231,7 @@ $(document).ready(function(){
                }
                
                if(draw){ // finish draw
-                  strokes_append(paper_this,{'stroke':that.current_stroke,'bbox':bounding_box_make(that.current_stroke)})
+                  strokes_append(paper_this,{'stroke':that.current_stroke,})
                   render();
 
                   that.current_stroke=null;
