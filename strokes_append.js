@@ -41,6 +41,10 @@ function strokes_append(that,stroke){
    that.strokes.push(stroke);
 
    for(i=0;i<that.strokes.length;++i){
+      if(that.strokes[i].stroke==stroke){
+         continue;
+      }
+
       if(bounding_box_overlaps(stroke.bbox,that.strokes[i].bbox)){
 
          if(stroke_point_set==null){
@@ -134,8 +138,6 @@ function strokes_append(that,stroke){
 
       that.letters.push(new_letter);
    }
-
-   that.strokes.push(stroke);
 }
 
 function focus_letter(that,x,y){
