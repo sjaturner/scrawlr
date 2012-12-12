@@ -88,9 +88,11 @@ $(document).ready(function(){
 
             stroke_render(this_stroke.stroke,stroke_in_focus(that.strokes[i].stroke,that.focus)?focus:black);
 
-            if(this_stroke.hasOwnProperty('letter')){
-               if(this_stroke.letter.hasOwnProperty('bbox')){
-                  var letter=this_stroke.letter;
+            if(this_stroke.hasOwnProperty('letter_index')){
+               var the_letter=that.letters[this_stroke.letter_index];
+
+               if(the_letter.hasOwnProperty('bbox')){
+                  var letter=the_letter;
                   var bbox=letter.bbox;
                   var minx=bbox[0][0]-that.orgx;
                   var miny=bbox[0][1]-that.orgy;

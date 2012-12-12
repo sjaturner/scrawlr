@@ -21,6 +21,7 @@ function differences_multipart_shim(that,stroke_indexes_a,stroke_indexes_b){
 function strokes_append(that,stroke){
    var val=salient(stroke.stroke);
    var multipart_letter=null;
+   var multipart_letter_index=-1;
    var i=0;
    var stroke_point_set=null;
    var multipart_letter_len=0;
@@ -52,23 +53,24 @@ function strokes_append(that,stroke){
          }
 
          if(intersects(stroke_point_set,stroke_to_point_set(that.strokes[i].stroke))){
-            multipart_letter=that.strokes[i].letter;
+            multipart_letter_index=that.strokes[i].letter_index;
             break;
          }
       }
    }
 
-   if(multipart_letter){
+   if(multipart_letter_index>=0){
+      multipart_letter=that.letters[multipart_letter_index];
       multipart_letter.item.push(new_stroke_index);
       multipart_letter.bbox=bounding_box_extend(multipart_letter.bbox,stroke.stroke);
 
-      stroke.letter=multipart_letter;
+      stroke.letter_index=multipart_letter_index;
       that.focus=multipart_letter;;
       multipart_letter_len=multipart_letter.item.length;
 
       for(letter_index=0;letter_index<that.letters.length;++letter_index){
          letter=that.letters[letter_index];
-         if(letter==multipart_letter){
+         if(letter_index==multipart_letter_index){
             continue;
          }
          else if(letter.item.length!=multipart_letter_len){
@@ -133,11 +135,14 @@ function strokes_append(that,stroke){
          console.log('onepart',String.fromCharCode(new_letter.char.val));
       }
 
-      stroke.letter=new_letter;
+      stroke.letter_index=that.letters.length;
       that.focus=new_letter;
 
       that.letters.push(new_letter);
    }
+
+   console.log(JSON.stringify(that.letters));
+   console.log(JSON.stringify(that.strokes));
 }
 
 function focus_letter(that,x,y){
