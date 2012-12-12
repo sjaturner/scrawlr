@@ -2,6 +2,22 @@ function score_sort(a,b){
    return -a[0]+b[0];
 }
 
+function differences_multipart_shim(that,stroke_indexes_a,stroke_indexes_b){
+   var stroke_array_a=[];
+   var stroke_array_b=[];
+   var i=0;
+
+   for(i=0;i<stroke_indexes_a.length;++i){
+      stroke_array_a.push(that.strokes[stroke_indexes_a[i]]);
+   }
+
+   for(i=0;i<stroke_indexes_b.length;++i){
+      stroke_array_b.push(that.strokes[stroke_indexes_b[i]]);
+   }
+
+   return differences_multipart(stroke_array_a,stroke_array_b);
+}
+
 function strokes_append(that,stroke){
    var val=salient(stroke.stroke);
    var multipart_letter=null;
@@ -15,11 +31,14 @@ function strokes_append(that,stroke){
    var score_table=[];
    var score=0;
    var item=[];
+   var new_stroke_index=that.strokes.length;
 
    stroke.time=(new Date).getTime();
    stroke.sec=val.sec;
    stroke.len=val.len;
    stroke.bbox=bounding_box_make(stroke.stroke);
+
+   that.strokes.push(stroke);
 
    for(i=0;i<that.strokes.length;++i){
       if(bounding_box_overlaps(stroke.bbox,that.strokes[i].bbox)){
@@ -36,7 +55,7 @@ function strokes_append(that,stroke){
    }
 
    if(multipart_letter){
-      multipart_letter.item.push(stroke);
+      multipart_letter.item.push(new_stroke_index);
       multipart_letter.bbox=bounding_box_extend(multipart_letter.bbox,stroke.stroke);
 
       stroke.letter=multipart_letter;
@@ -53,7 +72,7 @@ function strokes_append(that,stroke){
          }
          else
          {
-            differences=differences_multipart(multipart_letter.item,letter.item);
+            differences=differences_multipart_shim(that,multipart_letter.item,letter.item);
 
             for(score_index=0;score_index<differences.length;++score_index){
                score_table.push([differences[score_index],letter]);
@@ -81,21 +100,20 @@ function strokes_append(that,stroke){
 
       for(letter_index=0;letter_index<that.letters.length;++letter_index){
          letter=that.letters[letter_index];
-         item=letter.item[0];
 
-         if(letter.item.length!=1){
-            continue;
-         }
+         if(letter.item.length==1){
+            var stroke_index=letter.item[0];
 
-         differences=differences_stroke(stroke,item);
-         for(score_index=0;score_index<differences.length;++score_index){
-            score_table.push([differences[score_index],letter]);
+            differences=differences_stroke(stroke,that.strokes[stroke_index]);
+            for(score_index=0;score_index<differences.length;++score_index){
+               score_table.push([differences[score_index],letter]);
+            }
          }
       }
 
       score_table=score_table.sort(score_sort);
 
-      new_letter.item=[stroke];
+      new_letter.item=[new_stroke_index];
       new_letter.bbox=stroke.bbox;
 
       for(i=0;i<score_table.length;++i){
