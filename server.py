@@ -14,15 +14,19 @@ def prepro(file):
 def app(environ, start_response):
     req = Request(environ)
     pprint(req)
-    if req.path_info=='/' and req.method=='GET':
+    if req.path_info=='/' and req.method=='POST':
+        print 'post',req.body
+        resp = Response(None, "200 OK", [ ("Content-type", "text/html"), ])
+        return resp(environ, start_response)
+    elif req.path_info=='/' and req.method=='GET':
         page=open('page.html').read()
         resp = Response(page, "200 OK", [ ("Content-type", "text/html"), ])
         return resp(environ, start_response)
-    if req.path_info=='/page.js' and req.method=='GET':
+    elif req.path_info=='/page.js' and req.method=='GET':
         page=prepro('ui.js')
         resp = Response(page, "200 OK", [ ("Content-type", "text/javascript"), ])
         return resp(environ, start_response)
-    if req.path_info=='/jquery.min.js' and req.method=='GET':
+    elif req.path_info=='/jquery.min.js' and req.method=='GET':
         page=open('jquery.min.js').read()
         resp = Response(page, "200 OK", [ ("Content-type", "text/javascript"), ])
         return resp(environ, start_response)

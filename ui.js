@@ -162,6 +162,20 @@ $(document).ready(function(){
          render();
       }
 
+      function handle_mouseout(ev){
+         console.log('mouseout');
+
+         var frm = $(document.myform);
+         var dat = JSON.stringify({hello:1,there:2});
+
+         $.post(
+            frm.attr("action"),
+            dat,
+            function(data) {
+            }
+         );
+      }
+
       this.init=function(){
          canvas=$('#a_canvas')[0];
          if(!canvas){
@@ -187,6 +201,7 @@ $(document).ready(function(){
          canvas.addEventListener('mousedown', ev_canvas, false);
          canvas.addEventListener('mousemove', ev_canvas, false);
          canvas.addEventListener('mouseup',   ev_canvas, false);
+         canvas.addEventListener('mouseout',  handle_mouseout, false);
 
          width=canvas.width;
          height=canvas.height;
