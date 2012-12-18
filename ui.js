@@ -175,6 +175,9 @@ $(document).ready(function(){
             'orgy':that.orgy,
             'strokes':that.strokes,
             'letters':that.letters
+         },
+         function(key, val) {
+             return val.toFixed ? Number(val.toFixed(3)) : val;
          }); 
 
          that.focus=that.strokes[that.strokes.length-1];
