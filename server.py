@@ -1,5 +1,6 @@
 from webob import Request, Response
 from pprint import pprint
+import sys
 
 def prepro(file):
     hash_include='#include'
@@ -14,9 +15,13 @@ def prepro(file):
 def app(environ, start_response):
     req = Request(environ)
     pprint(req)
-    if req.path_info=='/' and req.method=='POST':
-        print 'post',req.body
+    if req.path_info=='/json' and req.method=='POST':
+        open(sys.argv[1],'w').write(req.body)
         resp = Response(None, "200 OK", [ ("Content-type", "text/html"), ])
+        return resp(environ, start_response)
+    if req.path_info=='/json' and req.method=='GET':
+        page=open(sys.argv[1]).read()
+        resp = Response(page, "200 OK", [ ("Content-type", "text/javascript"), ])
         return resp(environ, start_response)
     elif req.path_info=='/' and req.method=='GET':
         page=open('page.html').read()

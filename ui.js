@@ -32,6 +32,10 @@ $(document).ready(function(){
 
       function stroke_in_focus(stroke,focus){
          var i=0;
+
+         if(!focus){
+            return false;
+         }
   
          for(i=0;i<focus.item.length;++i){
             if(focus.item[i].stroke==stroke){
@@ -166,10 +170,17 @@ $(document).ready(function(){
          console.log('mouseout');
 
          var frm = $(document.myform);
-         var dat = JSON.stringify({hello:1,there:2});
+         var dat = JSON.stringify({
+            'orgx':that.orgx,
+            'orgy':that.orgy,
+            'strokes':that.strokes,
+            'letters':that.letters
+         }); 
+
+         that.focus=that.strokes[that.strokes.length-1];
 
          $.post(
-            frm.attr("action"),
+            "/json",
             dat,
             function(data) {
             }
@@ -206,7 +217,19 @@ $(document).ready(function(){
          width=canvas.width;
          height=canvas.height;
 
-         render();
+         $.get('json', function(str) {
+            var data=JSON.parse(str);
+
+            if(data=={}){
+               return;
+            }
+            console.log(data);
+            that.orgx=data.orgx;
+            that.orgy=data.orgy;
+            that.strokes=data.strokes;
+            that.letters=data.letters;
+            render();
+         });
       };
 
       function pen(paper){
