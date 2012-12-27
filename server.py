@@ -2,16 +2,6 @@ from webob import Request, Response
 from pprint import pprint
 import sys
 
-def prepro(file):
-    hash_include='#include'
-    ret=''
-    for line in open(file):
-        if hash_include in line:
-            ret+=prepro(line.split(hash_include)[1].split('"')[1])
-        else:
-            ret+=line
-    return ret
-
 def app(environ, start_response):
     req = Request(environ)
     pprint(req)
@@ -28,7 +18,7 @@ def app(environ, start_response):
         resp = Response(page, "200 OK", [ ("Content-type", "text/html"), ])
         return resp(environ, start_response)
     elif req.path_info=='/page.js' and req.method=='GET':
-        page=prepro('ui.js')
+        page=open('ui.js').read()
         resp = Response(page, "200 OK", [ ("Content-type", "text/javascript"), ])
         return resp(environ, start_response)
     elif req.path_info=='/jquery.min.js' and req.method=='GET':
