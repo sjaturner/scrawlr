@@ -1089,7 +1089,7 @@ $(document).ready(function(){
       }
 
       this.init=function(){
-         canvas=$('#a_canvas')[0];
+         canvas=$('#page')[0];
          if(!canvas){
             alert('no canvas element');
             return;

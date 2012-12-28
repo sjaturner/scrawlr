@@ -18,7 +18,7 @@ def app(environ, start_response):
         resp = Response(page, "200 OK", [ ("Content-type", "text/html"), ])
         return resp(environ, start_response)
     elif req.path_info=='/page.js' and req.method=='GET':
-        page=open('ui.js').read()
+        page=open('page.js').read()
         resp = Response(page, "200 OK", [ ("Content-type", "text/javascript"), ])
         return resp(environ, start_response)
     elif req.path_info=='/jquery.min.js' and req.method=='GET':
