@@ -13,7 +13,7 @@ $(document).ready(function(){
       var that=this;
       var paper_this=this;
       var canvas;
-      var ctx; 
+      var context; 
       var tool;
       var width=0;
       var height=0;
@@ -956,20 +956,20 @@ $(document).ready(function(){
                return;
             }
 
-            ctx.beginPath();
+            context.beginPath();
             for(var i=0;i<stroke.length;++i){
                var x=stroke[i][0]-that.orgx;
                var y=stroke[i][1]-that.orgy;
 
                if(i){
-                  ctx.lineTo(x,y);
+                  context.lineTo(x,y);
                }
                else{
-                  ctx.moveTo(x,y);
+                  context.moveTo(x,y);
                }
             }
-            ctx.strokeStyle = colour;
-            ctx.stroke();
+            context.strokeStyle = colour;
+            context.stroke();
          }
 
          canvas.width = canvas.width;
@@ -978,11 +978,11 @@ $(document).ready(function(){
          {
             var oy=(y-that.orgy%linegap)>>>0;
 
-            ctx.beginPath();
-            ctx.moveTo(0,oy);
-            ctx.lineTo(width,oy);
-            ctx.strokeStyle = "#000001";
-            ctx.stroke();
+            context.beginPath();
+            context.moveTo(0,oy);
+            context.lineTo(width,oy);
+            context.strokeStyle = "#000001";
+            context.stroke();
          }
 
          for(var i=0;i<that.strokes.length;++i){
@@ -1001,26 +1001,26 @@ $(document).ready(function(){
                   var maxx=bbox[1][0]-that.orgx;
                   var maxy=bbox[1][1]-that.orgy;
 
-                  ctx.beginPath();
-                  ctx.moveTo(minx,miny);
-                  ctx.lineTo(minx,maxy);
-                  ctx.lineTo(maxx,maxy);
-                  ctx.lineTo(maxx,miny);
-                  ctx.lineTo(minx,miny);
-                  ctx.strokeStyle = "#808080";
-                  ctx.stroke();
+                  context.beginPath();
+                  context.moveTo(minx,miny);
+                  context.lineTo(minx,maxy);
+                  context.lineTo(maxx,maxy);
+                  context.lineTo(maxx,miny);
+                  context.lineTo(minx,miny);
+                  context.strokeStyle = "#808080";
+                  context.stroke();
                   if(letter.hasOwnProperty('char')){
                      if(letter.char.type=='told'){
-                        ctx.strokeStyle = 'green';
+                        context.strokeStyle = 'green';
                      }
                      else{
-                        ctx.strokeStyle = 'blue';
+                        context.strokeStyle = 'blue';
                      }
 
-                     ctx.strokeText(String.fromCharCode(letter.char.val),minx,miny);
+                     context.strokeText(String.fromCharCode(letter.char.val),minx,miny);
                   }
                   else{
-                     ctx.strokeText('?',minx,miny);
+                     context.strokeText('?',minx,miny);
                   }
                }
             }
@@ -1088,51 +1088,6 @@ $(document).ready(function(){
          );
       }
 
-      this.init=function(){
-         canvas=$('#page')[0];
-         if(!canvas){
-            alert('no canvas element');
-            return;
-         }
-
-         if(!canvas.getContext){
-            alert('no canvas.getContext!');
-            return;
-         }
-
-         ctx=canvas.getContext('2d'); 
-         if(!ctx){
-            alert('cannot get ctx');
-            return;
-         }
-
-         ctx.lineWidth=1;
-
-         tool=new pen(this);
-
-         canvas.addEventListener('mousedown', ev_canvas, false);
-         canvas.addEventListener('mousemove', ev_canvas, false);
-         canvas.addEventListener('mouseup',   ev_canvas, false);
-         canvas.addEventListener('mouseout',  handle_mouseout, false);
-
-         width=canvas.width;
-         height=canvas.height;
-
-         $.get('json', function(str) {
-            var data=JSON.parse(str);
-
-            if(data=={}){
-               return;
-            }
-            console.log(data);
-            that.orgx=data.orgx;
-            that.orgy=data.orgy;
-            that.strokes=data.strokes;
-            that.letters=data.letters;
-            render();
-         });
-      };
-
       function pen(paper){
          var that=this; 
          var dwell_ms_for_move=500;
@@ -1183,18 +1138,18 @@ $(document).ready(function(){
 
             if(draw){
                if(first){
-                  ctx.beginPath();
-                  ctx.moveTo(ev._x, ev._y);
+                  context.beginPath();
+                  context.moveTo(ev._x, ev._y);
                   that.current_stroke=[];
                   first=0;
                }
                else{
-                  ctx.lineTo(ev._x, ev._y);
+                  context.lineTo(ev._x, ev._y);
                }
                that.current_stroke.push([ev._x+paper.orgx, ev._y+paper.orgy]);
 
-               ctx.strokeStyle = "#000001";
-               ctx.stroke();
+               context.strokeStyle = "#000001";
+               context.stroke();
             }
 
             if(drag){
@@ -1271,8 +1226,137 @@ $(document).ready(function(){
          if(func){
             func(ev);
          }
-      }
-   }
+      };
+
+      this.init=function(){
+         var mobile_device = {
+             android: function() {
+                 return navigator.userAgent.match(/Android/i) ? true : false;
+             },
+             blackberry: function() {
+                 return navigator.userAgent.match(/BlackBerry/i) ? true : false;
+             },
+             ios: function() {
+                 return navigator.userAgent.match(/iPhone|iPad|iPod/i) ? true : false;
+             },
+             windows: function() {
+                 return navigator.userAgent.match(/IEMobile/i) ? true : false;
+             },
+             any: function() {
+                 return mobile_device.android() || mobile_device.blackberry() || mobile_device.ios() || mobile_device.windows();
+             }
+         };
+
+         canvas=$('#page')[0];
+         if(!canvas){
+            alert('no canvas element');
+            return;
+         }
+
+         if(!canvas.getContext){
+            alert('no canvas.getContext!');
+            return;
+         }
+
+         context=canvas.getContext('2d'); 
+         if(!context){
+            alert('cannot get context');
+            return;
+         }
+
+         context.lineWidth=1;
+
+         tool=new pen(this);
+
+         var lastx=0;
+         var lasty=0;
+
+         function canonical_coordinates(e,uselast){
+            if(mobile_device.any()){
+               if(uselast){
+                  e._x=lastx;
+                  e._y=lasty;
+                  lastx=0;
+                  lasty=0;
+               }
+               else{
+                  e._x=e.pageX;
+                  e._y=e.pageY;
+
+                  lastx=e.pageX;
+                  lasty=e.pageY;
+               }
+            }
+            else{
+               var x=new Number();
+               var y=new Number();
+
+               if (event.x!=undefined && event.y!=undefined){
+                  x=event.x;
+                  y=event.y;
+               }
+               else{
+                  x=event.clientX+document.body.scrollLeft+document.documentElement.scrollLeft;
+                  y=event.clientY+document.body.scrollTop+document.documentElement.scrollTop;
+               }
+
+               x-=canvas.offsetLeft;
+               y-=canvas.offsetTop;
+
+               e._x=x;
+               e._y=y;
+            }
+
+            return e;
+         }
+
+         function down(e){
+            tool.mousedown(canonical_coordinates(e,false));
+         }
+
+         function up(e){
+            tool.mouseup(canonical_coordinates(e,true));
+         }
+
+         function move(e){
+            tool.mousemove(canonical_coordinates(e,false));
+         }
+
+         if(mobile_device.any()){
+
+            canvas.addEventListener('touchstart',down);
+            canvas.addEventListener('touchend',up);
+            canvas.addEventListener('touchmove',function (e){
+               e.preventDefault();
+               move(e);
+            });
+         }
+         else{
+            $("#page").mousedown(down);
+            $("#page").mouseup(up);
+            $("#page").mousemove(move);
+         }
+
+         canvas.addEventListener('mouseout',  handle_mouseout, false);
+
+         width=canvas.width;
+         height=canvas.height;
+
+         $.get('json', function(str) {
+            var data=JSON.parse(str);
+
+            if(data=={}){
+               return;
+            }
+            console.log(data);
+            that.orgx=data.orgx;
+            that.orgy=data.orgy;
+            that.strokes=data.strokes;
+            that.letters=data.letters;
+            render();
+         });
+      };
+   };
 
    var handle=new paper();
 
