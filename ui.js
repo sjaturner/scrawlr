@@ -974,6 +974,10 @@ $(document).ready(function(){
 
          canvas.width = canvas.width;
 
+         context.fillStyle="#ff0000";
+         context.fillRect(10,10,20,20);
+         context.fillRect(width-30,height-30,20,20);
+
          for(y=0;y<height;y+=linegap)
          {
             var oy=(y-that.orgy%linegap)>>>0;
@@ -1093,46 +1097,30 @@ $(document).ready(function(){
          var dwell_ms_for_move=500;
          var drag=0;
          var draw=0;
+         var first=0;
 
 
          that.mousedown=function(ev){
             var date=new Date();
 
             that.down={};
-            that.down.time=date.getTime();
             that.down.x=ev._x;
             that.down.y=ev._y;
             that.down.drag=ev.which==2;
+            first=1;
          };
 
          that.mousemove=function(ev){
-            var first=0;
-
             if('down' in that){
-               if(that.down.time){
-                  first=1;
-
+               if(first){
                   that.dloc=[ev._x, ev._y];
                   if(that.down.drag){
                      that.dorg=[ev._x, ev._y];
                      drag=1;
                   }
                   else{
-                     var date=new Date();
-                     var time=date.getTime();
-                     var dwell=time-that.down.time;
-
-                     if(dwell>=dwell_ms_for_move){
-                        that.dorg=[ev._x, ev._y];
-                        drag=1;
-                     }
-                     else{
-                        // need to record start time for stroke
-                        draw=1;
-                     }
+                     draw=1;
                   }
-
-                  that.down.time=0;
                }
             }
 
@@ -1141,7 +1129,6 @@ $(document).ready(function(){
                   context.beginPath();
                   context.moveTo(ev._x, ev._y);
                   that.current_stroke=[];
-                  first=0;
                }
                else{
                   context.lineTo(ev._x, ev._y);
@@ -1162,6 +1149,7 @@ $(document).ready(function(){
                that.dorg=[ev._x, ev._y];
                render();
             }
+            first=0;
          };
 
          that.mouseup=function(ev){
@@ -1171,13 +1159,10 @@ $(document).ready(function(){
                if(drag){ 
                   var x=that.dorg[0]-ev._x;
                   var y=that.dorg[1]-ev._y;
-                  var xdloc=that.dloc[0];
-                  var ydloc=that.dloc[1];
-                  var dx=ev._x-xdloc;
-                  var dy=ev._y-ydloc;
-                  var r=Math.sqrt(dx*dx+dy*dy);
 
-                  if(r<5){
+                  if(0){
+                     console.log('here',ev._x+paper.orgx, ev._y+paper.orgy);
+
                      paper_this.focus=focus_letter(paper_this,ev._x+paper.orgx, ev._y+paper.orgy);
                   }
                   
@@ -1202,31 +1187,6 @@ $(document).ready(function(){
             }
          };
       }
-
-      function ev_canvas(ev){
-         var x=new Number();
-         var y=new Number();
-
-         if (event.x!=undefined && event.y!=undefined){
-            x=event.x;
-            y=event.y;
-         }
-         else{
-            x=event.clientX+document.body.scrollLeft+document.documentElement.scrollLeft;
-            y=event.clientY+document.body.scrollTop+document.documentElement.scrollTop;
-         }
-
-         x-=canvas.offsetLeft;
-         y-=canvas.offsetTop;
-
-         ev._x=x;
-         ev._y=y;
-
-         var func=tool[ev.type];
-         if(func){
-            func(ev);
-         }
-      };
 
       this.init=function(){
          var mobile_device = {
@@ -1323,7 +1283,6 @@ $(document).ready(function(){
          }
 
          if(mobile_device.any()){
-
             canvas.addEventListener('touchstart',down);
             canvas.addEventListener('touchend',up);
             canvas.addEventListener('touchmove',function (e){
