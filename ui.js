@@ -787,7 +787,7 @@ $(document).ready(function(){
       function strokes_append(that,stroke){
          var val=salient(stroke.stroke);
          var multipart_letter=null;
-         var multipart_letter_index=-1;
+         var multipart_letter_indexes=[];
          var i=0;
          var stroke_point_set=null;
          var multipart_letter_len=0;
@@ -808,7 +808,7 @@ $(document).ready(function(){
          that.strokes.push(stroke);
 
          for(i=0;i<that.strokes.length;++i){
-            if(that.strokes[i].stroke==stroke){
+            if(that.strokes[i]==stroke){
                continue;
             }
 
@@ -819,31 +819,61 @@ $(document).ready(function(){
                }
 
                if(intersects(stroke_point_set,stroke_to_point_set(that.strokes[i].stroke))){
-                  multipart_letter_index=that.strokes[i].letter_index;
-                  break;
+                  multipart_letter_indexes.push(that.strokes[i].letter_index);
                }
             }
          }
 
-         if(multipart_letter_index>=0){
-            multipart_letter=that.letters[multipart_letter_index];
-            multipart_letter.item.push(new_stroke_index);
-            multipart_letter.bbox=bounding_box_extend(multipart_letter.bbox,stroke.stroke);
+         if(multipart_letter_indexes.length>0){
+            var scan_multipart_letter_indexes=0;
+            var new_letter_index=that.letters.length;
+            var scan_multipart_letter_strokes_index=0;
+            var bbox;
 
-            stroke.letter_index=multipart_letter_index;
+            multipart_letter={};
+            multipart_letter.item=[new_stroke_index];
+
+            for(scan_multipart_letter_indexes=0;scan_multipart_letter_indexes<multipart_letter_indexes.length;++scan_multipart_letter_indexes){
+               var item_index=0;
+
+               var letter_item=that.letters[multipart_letter_indexes[scan_multipart_letter_indexes]].item;
+
+               for(item_index=0;item_index<letter_item.length;++item_index){
+                  var strokes_index=letter_item[item_index];
+
+                  multipart_letter.item.push(strokes_index);
+               }
+            }
+
+            bbox=bounding_box_make(that.strokes[multipart_letter.item[scan_multipart_letter_strokes_index]].stroke);
+
+            for(scan_multipart_letter_strokes_index=1;scan_multipart_letter_strokes_index<multipart_letter.item.length;++scan_multipart_letter_strokes_index){
+               bbox=bounding_box_extend(bbox,that.strokes[multipart_letter.item[scan_multipart_letter_strokes_index]].stroke);
+            }
+
+            console.log(bbox[0][0]);
+            console.log(bbox[0][1]);
+            console.log(bbox[1][0]);
+            console.log(bbox[1][1]);
+
+            multipart_letter.bbox=bbox;
+
+            for(item_index=0;item_index<multipart_letter.item.length;++item_index){
+               var strokes_index=multipart_letter.item[item_index];
+
+               that.strokes[strokes_index].letter_index=new_letter_index;
+            }
+
             that.focus=multipart_letter;;
             multipart_letter_len=multipart_letter.item.length;
 
             for(letter_index=0;letter_index<that.letters.length;++letter_index){
                letter=that.letters[letter_index];
-               if(letter_index==multipart_letter_index){
+
+               if(letter.item.length!=multipart_letter_len){
                   continue;
                }
-               else if(letter.item.length!=multipart_letter_len){
-                  continue;
-               }
-               else
-               {
+               else {
                   differences=differences_multipart_shim(that,multipart_letter.item,letter.item);
 
                   for(score_index=0;score_index<differences.length;++score_index){
@@ -866,6 +896,8 @@ $(document).ready(function(){
             if(multipart_letter.hasOwnProperty('char')){
                console.log('multipart',String.fromCharCode(multipart_letter.char.val));
             }
+
+            that.letters.push(multipart_letter);
          }
          else{
             var new_letter={};
