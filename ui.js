@@ -851,11 +851,6 @@ $(document).ready(function(){
                bbox=bounding_box_extend(bbox,that.strokes[multipart_letter.item[scan_multipart_letter_strokes_index]].stroke);
             }
 
-            console.log(bbox[0][0]);
-            console.log(bbox[0][1]);
-            console.log(bbox[1][0]);
-            console.log(bbox[1][1]);
-
             multipart_letter.bbox=bbox;
 
             for(item_index=0;item_index<multipart_letter.item.length;++item_index){
