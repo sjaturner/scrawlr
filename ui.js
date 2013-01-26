@@ -27,6 +27,8 @@ $(document).ready(function(){
       that.letters=[];
       that.focus=null;
       that.gestures=[];
+      that.lowercase_mode=0;
+      that.lowercase_index=0;
 
 
       function intcmp(a,b){
@@ -894,12 +896,22 @@ $(document).ready(function(){
 
             score_table=score_table.sort(score_sort);
 
-            for(score_index=0;score_index<score_table.length;++score_index){
-               score=score_table[score_index][0];
-               letter=score_table[score_index][1];
+            if(that.lowercase_mode){
+               multipart_letter.char={'type':'told','val':that.lowercase_index-1+97};
 
-               if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
-                  multipart_letter.char={'type':'guess','val':letter.char.val};
+               if(that.lowercase_index==26){
+                  that.lowercase_mode=0;
+                  console.log('out of lowercase mode');
+               }
+            }
+            else{
+               for(score_index=0;score_index<score_table.length;++score_index){
+                  score=score_table[score_index][0];
+                  letter=score_table[score_index][1];
+
+                  if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
+                     multipart_letter.char={'type':'guess','val':letter.char.val};
+                  }
                }
             }
 
@@ -959,6 +971,15 @@ $(document).ready(function(){
 
             console.log('gesture '+best_gesture_index+' '+best_gesture_score);
 
+            if(best_gesture_score<15){
+               if(best_gesture_index==4){
+                  that.lowercase_mode=1;
+                  that.lowercase_index=0;
+               }
+               console.log('bailing');
+               return;
+            }
+
             /* this loop and sort is nonsense now, all we need is a peak hold, similarly above for multipart */
 
             for(letter_index=0;letter_index<that.letters.length;++letter_index){
@@ -982,12 +1003,23 @@ $(document).ready(function(){
             new_letter.bbox=stroke.bbox;
 
 
-            for(i=0;i<score_table.length;++i){
-               score=score_table[i][0];
-               letter=score_table[i][1];
+            if(that.lowercase_mode){
+               new_letter.char={'type':'told','val':that.lowercase_index+97};
+               ++that.lowercase_index;
 
-               if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
-                  new_letter.char={'type':'guess','val':letter.char.val};
+               if(that.lowercase_index==26){
+                  console.log('out of lowercase mode');
+                  that.lowercase_mode=0;
+               }
+            }
+            else{
+               for(i=0;i<score_table.length;++i){
+                  score=score_table[i][0];
+                  letter=score_table[i][1];
+
+                  if(letter.hasOwnProperty('char') && letter.char.hasOwnProperty('type') && letter.char.type=='told'){
+                     new_letter.char={'type':'guess','val':letter.char.val};
+                  }
                }
             }
 
@@ -1001,8 +1033,10 @@ $(document).ready(function(){
             that.letters.push(new_letter);
          }
 
-         console.log(JSON.stringify(that.letters));
-         console.log(JSON.stringify(that.strokes));
+         if(0){
+            console.log(JSON.stringify(that.letters));
+            console.log(JSON.stringify(that.strokes));
+         }
       }
 
       function focus_letter(that,x,y){
