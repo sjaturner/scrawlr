@@ -26,6 +26,7 @@ $(document).ready(function(){
       that.strokes=[];
       that.letters=[];
       that.focus=null;
+      that.gestures=[];
 
 
       function intcmp(a,b){
@@ -784,6 +785,20 @@ $(document).ready(function(){
          return differences_multipart(stroke_array_a,stroke_array_b);
       }
 
+      function build_line_sec(angle){
+         var ret={}
+         var i=0;
+
+         ret.len=50;
+         ret.resampled=[];
+
+         for(i=0;i<16;++i){
+            ret.resampled.push(angle);
+         }
+
+         return ret;
+      }
+
       function strokes_append(that,stroke){
          var val=salient(stroke.stroke);
          var multipart_letter=null;
@@ -896,6 +911,55 @@ $(document).ready(function(){
          }
          else{
             var new_letter={};
+            var gesture_index=0;
+            var best_gesture_score=Number.MAX_VALUE;
+            var best_gesture_index=-1;
+
+            if(that.gestures.length==0){
+
+               for(gesture_index=0;gesture_index<8;++gesture_index){
+                  var angle_step=gesture_index-2;
+                  var angle_back=0;
+                  var gesture_stroke={};
+
+                  if(angle_step>4){
+                     angle_step-=8;
+                  }
+
+                  angle_back=angle_step+4;
+
+                  if(angle_back>4){
+                     angle_back-=8;
+                  }
+
+                  gesture_stroke.len=0;
+                  gesture_stroke.sec=[];
+
+                  gesture_stroke.sec.push(build_line_sec(angle_step*Math.PI/4));
+                  gesture_stroke.len+=50;
+
+                  gesture_stroke.sec.push(build_line_sec(angle_back*Math.PI/4));
+                  gesture_stroke.len+=50;
+
+                  that.gestures.push(gesture_stroke);
+                  console.log(JSON.stringify(gesture_stroke));
+               }
+            }
+
+            for(gesture_index=0;gesture_index<that.gestures.length;++gesture_index){
+               differences=differences_stroke(stroke,that.gestures[gesture_index]);
+
+               for(score_index=0;score_index<differences.length;++score_index){
+                  if(differences[score_index]<best_gesture_score){
+                     best_gesture_score=differences[score_index];
+                     best_gesture_index=gesture_index;
+                  }
+               }
+            }
+
+            console.log('gesture '+best_gesture_index+' '+best_gesture_score);
+
+            /* this loop and sort is nonsense now, all we need is a peak hold, similarly above for multipart */
 
             for(letter_index=0;letter_index<that.letters.length;++letter_index){
                letter=that.letters[letter_index];
@@ -912,8 +976,11 @@ $(document).ready(function(){
 
             score_table=score_table.sort(score_sort);
 
+            /* this is where the command stuff should get tested and recognised */
+
             new_letter.item=[new_stroke_index];
             new_letter.bbox=stroke.bbox;
+
 
             for(i=0;i<score_table.length;++i){
                score=score_table[i][0];
