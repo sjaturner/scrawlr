@@ -507,7 +507,9 @@ $(document).ready(function(){
             t=median_filtered[i]<threshold;
 
             if(state=='up' && !t){
-               sec.push({'len':acc.length,'resampled':resample(acc,nsample)});
+               if(acc.length){
+                  sec.push({'len':acc.length,'resampled':resample(acc,nsample)});
+               }
                state='down';
             }
             else if(state=='down' && t){
@@ -853,12 +855,18 @@ $(document).ready(function(){
             for(scan_multipart_letter_indexes=0;scan_multipart_letter_indexes<multipart_letter_indexes.length;++scan_multipart_letter_indexes){
                var item_index=0;
 
-               var letter_item=that.letters[multipart_letter_indexes[scan_multipart_letter_indexes]].item;
+               if(multipart_letter_indexes[scan_multipart_letter_indexes]){
+                  var letter_item=that.letters[multipart_letter_indexes[scan_multipart_letter_indexes]].item;
 
-               for(item_index=0;item_index<letter_item.length;++item_index){
-                  var strokes_index=letter_item[item_index];
+                  for(item_index=0;item_index<letter_item.length;++item_index){
+                     var strokes_index=letter_item[item_index];
 
-                  multipart_letter.item.push(strokes_index);
+                     multipart_letter.item.push(strokes_index);
+                  }
+               }
+               else{
+                  console.log('colision with gesture bailing');
+                  return;
                }
             }
 
@@ -876,7 +884,7 @@ $(document).ready(function(){
                that.strokes[strokes_index].letter_index=new_letter_index;
             }
 
-            that.focus=multipart_letter;;
+            that.focus=multipart_letter;
             multipart_letter_len=multipart_letter.item.length;
 
             for(letter_index=0;letter_index<that.letters.length;++letter_index){
@@ -1048,7 +1056,10 @@ $(document).ready(function(){
             var stroke_index=0;
 
             for(stroke_index=0;stroke_index<letter.item.length;++stroke_index){
-               if(bounding_box_overlaps(letter.item[stroke_index].bbox,point_bbox)){
+               var stroke=that.strokes[letter.item[stroke_index]];
+
+               if(bounding_box_overlaps(stroke.bbox,point_bbox)){
+                  console.log('found one');
                   return letter;
                }
             }
@@ -1059,7 +1070,7 @@ $(document).ready(function(){
       function stroke_in_focus(stroke,focus){
          var i=0;
 
-         if(!focus){
+         if(focus===null){
             return false;
          }
   
@@ -1288,11 +1299,8 @@ $(document).ready(function(){
                   var x=that.dorg[0]-ev._x;
                   var y=that.dorg[1]-ev._y;
 
-                  if(0){
-                     console.log('here',ev._x+paper.orgx, ev._y+paper.orgy);
-
-                     paper_this.focus=focus_letter(paper_this,ev._x+paper.orgx, ev._y+paper.orgy);
-                  }
+                  console.log('here',ev._x+paper.orgx, ev._y+paper.orgy);
+                  paper_this.focus=focus_letter(paper_this,ev._x+paper.orgx, ev._y+paper.orgy);
                   
                   paper.orgx+=x;
                   paper.orgy+=y;
