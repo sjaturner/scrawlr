@@ -26,3 +26,7 @@ one which would work nicely on pad type devices with pen interface but with all 
 ## And there is another twist
 
 Of course, it would be even more cute if there was an embeded API and scripting languge ... "show me what I wrote last week" [Execute]
+
+## Conclusion
+
+Now that I've written that down, I think it's a great idea again. Expect that to last for about fifteen minutes.
