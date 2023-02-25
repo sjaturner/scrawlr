@@ -23,4 +23,6 @@ what you were doing. Obviously, pictures and diagrams are fine too.
 I'd hoped that this could turn into a sort of written diary of the future, 
 one which would work nicely on pad type devices with pen interface but with all the added benefits of text.
 
+## And there is another twist
+
 Of course, it would be even more cute if there was an embeded API and scripting languge ... "show me what I wrote last week" [Execute]
