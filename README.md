@@ -30,3 +30,7 @@ Of course, it would be even more cute if there was an embeded API and scripting 
 ## Conclusion
 
 Now that I've written that down, I think it's a great idea again. Expect that to last for about fifteen minutes. Might see if it runs though ...
+
+## PS 
+
+That's nice - there seems to be a comment in the code. https://github.com/sjaturner/scrawlr/blob/master/paper.py
