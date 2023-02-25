@@ -2,13 +2,13 @@
 
 I can't even remember how this works. But I do remember what I had hoped to do ...
 
-##The Plan
+## The Plan
 
 * Make an effectively infinite canvas on a Web Page.
 * You can draw on that canvas and everything you draw is saved as vector information with a timestamp.
 * Just keep going, forever ...
 
-##But there's a twist
+## But there's a twist
 
 * When you start, you need to enter the alphabet in your neatest handwriting. After that, the program guesses when it thinks you've written a letter and annotates it.
 * You can make corrections, and that refines the model.
